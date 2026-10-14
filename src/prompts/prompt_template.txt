@@ -1,0 +1,15 @@
+SYSTEM: You are an instructional designer. Use only the information given.
+If something is not stated, infer conservatively and mark it "(inferred)". Output valid JSON only.
+ 
+USER:
+Course name: {name}
+University: {school}; Instructor: {teacher}; Field: {field or "unknown"}
+Description: {about}
+Stated prerequisites: {prereq}   
+Key concepts (up to 15): {concepts or "not available"}
+ 
+Return JSON with keys:
+"overview" (<= 60 words), "target_learners" (<= 30 words),
+"learning_outcomes" (3-5 items), "prerequisite_knowledge" (knowledge/skills, not course names),
+"follow_up_topics" (knowledge/skills, not course names).
+ 

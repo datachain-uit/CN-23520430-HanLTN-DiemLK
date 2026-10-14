@@ -1,0 +1,2 @@
+**/interactions_full.parquet filter=lfs diff=lfs merge=lfs -text
+**/user-course.csv filter=lfs diff=lfs merge=lfs -text
