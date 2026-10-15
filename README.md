@@ -15,15 +15,15 @@ Dữ liệu sử dụng trong đề tài được xây dựng dựa trên bộ d
   }
 
 ## Cấu trúc thư mục
-.
-├── data/
-│   |── course_llm/           # Hồ sơ LLM sinh ra
-|   |── full_interactions/    # Dữ liệu tương tác giữa học viên và khóa học
-│   |── raw_data_processed/   # Dữ liệu gốc đã tiền xử lý
-|   └── splits/               # Các tập train/val/test theo giao thức (seed: 2026)
-├── src/
-│   ├── data/                 # Mã nguồn kết hợp dữ liệu và chia split theo 3 kịch bản
-│   ├── eval/                 # Thư mục chứa evaluator.py và các bài test đơn vị
-│   └── prompts               # Prompt sinh mô tả bằng LLM
-├── README.md
-└── requirements.txt
+```text  .
+  ├── data/
+  │   |── course_llm/           # Hồ sơ LLM sinh ra
+  |   |── full_interactions/    # Dữ liệu tương tác giữa học viên và khóa học
+  │   |── raw_data_processed/   # Dữ liệu gốc đã tiền xử lý
+  |   └── splits/               # Các tập train/val/test theo giao thức (seed: 2026)
+  ├── src/
+  │   ├── data/                 # Mã nguồn kết hợp dữ liệu và chia split theo 3 kịch bản
+  │   ├── eval/                 # Thư mục chứa evaluator.py và các bài test đơn vị
+  │   └── prompts               # Prompt sinh mô tả bằng LLM
+  ├── README.md
+  └── requirements.txt
