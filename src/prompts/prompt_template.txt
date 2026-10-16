@@ -10,6 +10,7 @@ Key concepts (up to 15): {concepts or "not available"}
  
 Return JSON with keys:
 "overview" (<= 60 words), "target_learners" (<= 30 words),
-"learning_outcomes" (3-5 items), "prerequisite_knowledge" (knowledge/skills, not course names),
-"follow_up_topics" (knowledge/skills, not course names).
+"learning_outcomes" (3-5 items), "prerequisite_knowledge" (a JSON list of 2-5 items, knowledge/skills, not course names),
+"follow_up_topics" (a JSON list of 2-5 items, knowledge/skills, not course names).
+Do not mention the university or instructor names in any field.
  
