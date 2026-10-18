@@ -1,0 +1,306 @@
+[
+  {
+    "course_id": "C_2179942",
+    "course_name": "the past online is still there, but the ideological and political affairs in the cloud are close to you.",
+    "dup_group_id": "C_1753494",
+    "cosine_name_vs_llm": -0.0622,
+    "cosine_raw_vs_llm": 0.4461,
+    "overview": "This course offers a comprehensive training plan to enhance teaching and research skills for university educators."
+  },
+  {
+    "course_id": "C_697471",
+    "course_name": "abandoned",
+    "dup_group_id": "C_697471",
+    "cosine_name_vs_llm": -0.0359,
+    "cosine_raw_vs_llm": 0.1633,
+    "overview": "This course explores advanced topics in an unspecified field, focusing on key concepts and practical applications."
+  },
+  {
+    "course_id": "C_1875498",
+    "course_name": "number of recent generations",
+    "dup_group_id": "C_1875498",
+    "cosine_name_vs_llm": -0.0045,
+    "cosine_raw_vs_llm": 0.7281,
+    "overview": "Explore modern algebra to understand Rubik's cubes, symmetry, cryptography, Fermat’s Last Theorem, and ancient Greek mapping problems."
+  },
+  {
+    "course_id": "C_830572",
+    "course_name": "intellectual property law and practice (tsinghua certified)",
+    "dup_group_id": "C_1818546",
+    "cosine_name_vs_llm": 0.0152,
+    "cosine_raw_vs_llm": 0.5829,
+    "overview": "This course provides learners with a solid foundation in big data analysis, management, and application."
+  },
+  {
+    "course_id": "C_1767581",
+    "course_name": "text in light and shadow",
+    "dup_group_id": "C_1767581",
+    "cosine_name_vs_llm": 0.0392,
+    "cosine_raw_vs_llm": 0.5842,
+    "overview": "This provincial-level quality course uses film and television theories to analyze cases and encourages independent learning through after-class reflections."
+  },
+  {
+    "course_id": "C_1944723",
+    "course_name": "synoptic",
+    "dup_group_id": "C_1944723",
+    "cosine_name_vs_llm": 0.0656,
+    "cosine_raw_vs_llm": 0.7321,
+    "overview": "Explore the dynamics of weather phenomena and atmospheric circulation disturbances to understand and predict weather patterns."
+  },
+  {
+    "course_id": "C_2325495",
+    "course_name": "project gale - tutorial",
+    "dup_group_id": "C_2325495",
+    "cosine_name_vs_llm": 0.0864,
+    "cosine_raw_vs_llm": 0.6048,
+    "overview": "Explore the psychological journey from novelty to habit formation, understanding how traits can be developed over time."
+  },
+  {
+    "course_id": "C_654505",
+    "course_name": "series course test 2-zm",
+    "dup_group_id": "C_654504",
+    "cosine_name_vs_llm": 0.1012,
+    "cosine_raw_vs_llm": 0.8245,
+    "overview": "This introductory course in interface design covers GUI and H5 web design, helping students understand interface design basics and prepare for advanced studies."
+  },
+  {
+    "course_id": "C_654551",
+    "course_name": "series course test 4-zm",
+    "dup_group_id": "C_654504",
+    "cosine_name_vs_llm": 0.1058,
+    "cosine_raw_vs_llm": 0.8334,
+    "overview": "This introductory course on interface design covers GUI and H5 web design, helping students understand interface design basics and prepare for advanced studies."
+  },
+  {
+    "course_id": "C_655850",
+    "course_name": "series of classes - class has not started yet",
+    "dup_group_id": "C_597314",
+    "cosine_name_vs_llm": 0.1116,
+    "cosine_raw_vs_llm": 0.7531,
+    "overview": "This course addresses the growing demand for AI knowledge by providing 8 lectures and a transformation challenge task, focusing on data science and AI."
+  },
+  {
+    "course_id": "C_654504",
+    "course_name": "series course test 1-zm",
+    "dup_group_id": "C_654504",
+    "cosine_name_vs_llm": 0.1125,
+    "cosine_raw_vs_llm": 0.8255,
+    "overview": "This introductory course in interface design covers GUI and H5 web design, helping students understand interface design basics and prepare for advanced studies."
+  },
+  {
+    "course_id": "C_680970",
+    "course_name": "stars who changed the world",
+    "dup_group_id": "C_680970",
+    "cosine_name_vs_llm": 0.1147,
+    "cosine_raw_vs_llm": 0.4245,
+    "overview": "Explore the impact of key molecules on society through their discovery, structure, and effects, enhancing scientific literacy and enthusiasm."
+  },
+  {
+    "course_id": "C_2091183",
+    "course_name": "test test",
+    "dup_group_id": "C_1912735",
+    "cosine_name_vs_llm": 0.1173,
+    "cosine_raw_vs_llm": 0.6057,
+    "overview": "This course equips students with front-end development skills including CSS, JavaScript, and web frameworks."
+  },
+  {
+    "course_id": "C_734067",
+    "course_name": "\"shui mu wen dao\" season 1 - qinghua future",
+    "dup_group_id": "C_734067",
+    "cosine_name_vs_llm": 0.1205,
+    "cosine_raw_vs_llm": 0.6023,
+    "overview": "This course introduces the future development and applications of five subject areas in a popular science manner."
+  },
+  {
+    "course_id": "C_681200",
+    "course_name": "take the pulse of the company",
+    "dup_group_id": "C_681200",
+    "cosine_name_vs_llm": 0.1422,
+    "cosine_raw_vs_llm": 0.7797,
+    "overview": "This course integrates traditional Chinese medicine diagnostic techniques with financial statement analysis to make the subject accessible and engaging."
+  },
+  {
+    "course_id": "C_681295",
+    "course_name": "manage treasure chest",
+    "dup_group_id": "C_681295",
+    "cosine_name_vs_llm": 0.1436,
+    "cosine_raw_vs_llm": 0.6673,
+    "overview": "This course introduces essential management concepts, theories, and tools for daily life and professional development."
+  },
+  {
+    "course_id": "C_734050",
+    "course_name": "viscerology",
+    "dup_group_id": "C_734050",
+    "cosine_name_vs_llm": 0.1738,
+    "cosine_raw_vs_llm": 0.5737,
+    "overview": "Veserology explores the anatomy and physiology of the digestive, respiratory, urinary, and reproductive systems using accessible language."
+  },
+  {
+    "course_id": "C_655852",
+    "course_name": "series of courses-completed courses without review time",
+    "dup_group_id": "C_597314",
+    "cosine_name_vs_llm": 0.1872,
+    "cosine_raw_vs_llm": 0.7403,
+    "overview": "This course addresses the growing demand for AI knowledge by providing 8 lectures and a transformation challenge task every other week."
+  },
+  {
+    "course_id": "C_2228987",
+    "course_name": "electronic writing on the blackboard",
+    "dup_group_id": "C_1753494",
+    "cosine_name_vs_llm": 0.1876,
+    "cosine_raw_vs_llm": 0.5769,
+    "overview": "This course provides a comprehensive training plan to enhance teaching and research skills for university educators."
+  },
+  {
+    "course_id": "C_682544",
+    "course_name": "math experiment",
+    "dup_group_id": "C_682441",
+    "cosine_name_vs_llm": 0.2073,
+    "cosine_raw_vs_llm": 0.5968,
+    "overview": "This course uses computers and MATLAB to solve real-world problems in calculus, linear algebra, and probability and statistics, integrating theoretical analysis with practical application."
+  },
+  {
+    "course_id": "C_696541",
+    "course_name": "ten lectures on creation: the cradle of the next unicorn",
+    "dup_group_id": "C_696541",
+    "cosine_name_vs_llm": 0.2094,
+    "cosine_raw_vs_llm": 0.6815,
+    "overview": "Ten lectures exploring entrepreneurial journeys through interviews with successful entrepreneurs and mentors, covering ten key themes like self-cultivation."
+  },
+  {
+    "course_id": "C_2297230",
+    "course_name": "histoembryology",
+    "dup_group_id": "C_2297230",
+    "cosine_name_vs_llm": 0.2104,
+    "cosine_raw_vs_llm": 0.7627,
+    "overview": "This course explores mammalian and aquatic animal embryology, focusing on tissue types, organ structures, and early development."
+  },
+  {
+    "course_id": "C_1797655",
+    "course_name": "didi-dilive top conference and top magazine series",
+    "dup_group_id": "C_1797655",
+    "cosine_name_vs_llm": 0.2141,
+    "cosine_raw_vs_llm": 0.7577,
+    "overview": "Explore Didi's use of technology to create a safe, efficient, and environmentally friendly smart travel ecosystem."
+  },
+  {
+    "course_id": "C_2233592",
+    "course_name": "scientist spirit and project design",
+    "dup_group_id": "C_1753494",
+    "cosine_name_vs_llm": 0.2145,
+    "cosine_raw_vs_llm": 0.6513,
+    "overview": "Full-cycle training plan for enhancing teaching and research skills of university educators."
+  },
+  {
+    "course_id": "C_735361",
+    "course_name": "math experiment",
+    "dup_group_id": "C_682441",
+    "cosine_name_vs_llm": 0.2179,
+    "cosine_raw_vs_llm": 0.5746,
+    "overview": "This course uses computers and MATLAB to solve real-world problems in calculus, linear algebra, and probability & statistics, integrating theoretical analysis and practical application."
+  },
+  {
+    "course_id": "C_681909",
+    "course_name": "python zero-based certificate class",
+    "dup_group_id": "C_681909",
+    "cosine_name_vs_llm": 0.2206,
+    "cosine_raw_vs_llm": 0.6355,
+    "overview": "Python, a top-ranked language in TIOBE and IEEE Spectrum, is essential for AI. It offers simplicity, readability, flexibility, portability, and scalability."
+  },
+  {
+    "course_id": "C_682347",
+    "course_name": "python zero-based certificate class",
+    "dup_group_id": "C_681909",
+    "cosine_name_vs_llm": 0.2206,
+    "cosine_raw_vs_llm": 0.6355,
+    "overview": "Python, a top-ranked language in TIOBE and IEEE Spectrum, is essential for AI. It offers simplicity, readability, flexibility, portability, and scalability."
+  },
+  {
+    "course_id": "C_2229012",
+    "course_name": "evaluation of course achievement in the process of reshaping obe quality courses",
+    "dup_group_id": "C_1753494",
+    "cosine_name_vs_llm": 0.2224,
+    "cosine_raw_vs_llm": 0.5899,
+    "overview": "This course aims to develop a comprehensive training plan for enhancing university teachers' teaching and research skills through a full-cycle approach."
+  },
+  {
+    "course_id": "C_707063",
+    "course_name": "ten lectures on creation: the cradle of the next unicorn",
+    "dup_group_id": "C_696541",
+    "cosine_name_vs_llm": 0.2286,
+    "cosine_raw_vs_llm": 0.7041,
+    "overview": "Ten lectures exploring entrepreneurial journeys through interviews with successful entrepreneurs and mentors, covering ten key themes like self-cultivation."
+  },
+  {
+    "course_id": "C_902013",
+    "course_name": "situation and policy",
+    "dup_group_id": "C_680988",
+    "cosine_name_vs_llm": 0.2387,
+    "cosine_raw_vs_llm": 0.7145,
+    "overview": "This course covers ideological and political theory, focusing on national and global situations, policies, and achievements."
+  },
+  {
+    "course_id": "C_696754",
+    "course_name": "secrets of wisdom",
+    "dup_group_id": "C_696754",
+    "cosine_name_vs_llm": 0.2394,
+    "cosine_raw_vs_llm": 0.6189,
+    "overview": "Explore the development of human thinking through a comparative analysis of Chinese and Western philosophies, emphasizing the role of philosophy in human wisdom."
+  },
+  {
+    "course_id": "C_680792",
+    "course_name": "dynamic testing and analysis (part 2)",
+    "dup_group_id": "C_680786",
+    "cosine_name_vs_llm": 0.2404,
+    "cosine_raw_vs_llm": 0.6716,
+    "overview": "This course covers the principles of dynamic signal analysis, focusing on inner product transformations and their application in understanding machinery states."
+  },
+  {
+    "course_id": "C_681669",
+    "course_name": "installation budget estimate",
+    "dup_group_id": "C_681669",
+    "cosine_name_vs_llm": 0.2448,
+    "cosine_raw_vs_llm": 0.5479,
+    "overview": "This course teaches students to read drawings and calculate engineering quantities for various projects, enhancing their practical skills and professional quality."
+  },
+  {
+    "course_id": "C_2223976",
+    "course_name": "acquisition and management of network information resources",
+    "dup_group_id": "C_2223976",
+    "cosine_name_vs_llm": 0.2537,
+    "cosine_raw_vs_llm": 0.6241,
+    "overview": "This course teaches how to efficiently find, assess, and use necessary information in the vast sea of data, essential for medical professionals and related fields."
+  },
+  {
+    "course_id": "C_680988",
+    "course_name": "situation and policy",
+    "dup_group_id": "C_680988",
+    "cosine_name_vs_llm": 0.2545,
+    "cosine_raw_vs_llm": 0.728,
+    "overview": "This course explores contemporary global and national affairs, emphasizing the importance of understanding current situations and policies."
+  },
+  {
+    "course_id": "C_1741502",
+    "course_name": "costume show",
+    "dup_group_id": "C_1741502",
+    "cosine_name_vs_llm": 0.2557,
+    "cosine_raw_vs_llm": 0.6795,
+    "overview": "This compulsory course focuses on developing performance skills through theoretical knowledge and practical application, essential for acting majors."
+  },
+  {
+    "course_id": "C_948423",
+    "course_name": "literature information retrieval and utilization",
+    "dup_group_id": "C_948423",
+    "cosine_name_vs_llm": 0.2561,
+    "cosine_raw_vs_llm": 0.6442,
+    "overview": "This course aims to enhance information literacy through practical and engaging methods, focusing on retrieval skills and innovative thinking."
+  },
+  {
+    "course_id": "C_1925894",
+    "course_name": "blue earth",
+    "dup_group_id": "C_1925894",
+    "cosine_name_vs_llm": 0.2658,
+    "cosine_raw_vs_llm": 0.5354,
+    "overview": "Explore the geological history and current state of Earth over 4.6 billion years, including tectonic movements and environmental impacts."
+  }
+]

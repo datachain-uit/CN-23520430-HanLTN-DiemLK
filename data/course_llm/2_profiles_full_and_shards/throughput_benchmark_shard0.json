@@ -1,0 +1,31 @@
+{
+  "model_name": "Qwen/Qwen2.5-7B-Instruct",
+  "model_revision": "a09a35458c702b33eeacc393d103063234e8bc28",
+  "library_versions": {
+    "torch": "2.11.0+cu128",
+    "transformers": "5.20.1",
+    "bitsandbytes": "0.50.2",
+    "sentence_transformers": "6.1.0"
+  },
+  "dup_group_summary": {
+    "total_courses": 3769,
+    "unique_dup_groups": 2847,
+    "courses_in_multi_member_dup_groups": 1426,
+    "shared_non_empty_descriptions_count": 315,
+    "courses_sharing_description": 815,
+    "courses_sharing_description_pct": 21.62,
+    "placeholder_or_test_courses_count": 14,
+    "dup_groups_parquet_path": "./output/course_dup_groups.parquet"
+  },
+  "num_courses_tested": 1885,
+  "valid_json_rate": 1.0,
+  "schema_compliant_rate": 1.0,
+  "university_or_instructor_mention_count": 0,
+  "courses_needed_retry": 50,
+  "throughput_tokens_per_sec": 14.93,
+  "avg_sec_per_course": 11.7072,
+  "gpu_hours_per_course": 0.003252,
+  "peak_vram_gb_single_gpu": 5.54,
+  "sbert_encoding_summary": null,
+  "masked_prereq_evaluation": null
+}

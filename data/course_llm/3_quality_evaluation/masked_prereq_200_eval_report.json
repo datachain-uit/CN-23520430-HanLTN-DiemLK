@@ -1,0 +1,117 @@
+{
+  "num_evaluated_courses": 200,
+  "num_courses_with_prereq_hint_in_about": 21,
+  "num_clean_subset_courses": 179,
+  "seed": 2026,
+  "encoder_name": "sentence-transformers/all-MiniLM-L6-v2",
+  "full_200_evaluation": {
+    "num_courses": 200,
+    "inferred_vs_gt_cosine": {
+      "mean": 0.5033,
+      "std": 0.1447,
+      "median": 0.5153
+    },
+    "baselines": {
+      "course_name_vs_gt": {
+        "mean": 0.4236,
+        "std": 0.184,
+        "median": 0.417,
+        "wilcoxon_inferred_greater": {
+          "statistic": 14581.0,
+          "p_value_one_sided_greater": 1.6140639126508787e-08
+        }
+      },
+      "raw_course_text_vs_gt": {
+        "mean": 0.4293,
+        "std": 0.1428,
+        "median": 0.445,
+        "wilcoxon_inferred_greater": {
+          "statistic": 15193.0,
+          "p_value_one_sided_greater": 1.7444086361718417e-10
+        }
+      },
+      "random_paired_gt": {
+        "mean": 0.2109,
+        "std": 0.1342,
+        "median": 0.191,
+        "wilcoxon_inferred_greater": {
+          "statistic": 19686.0,
+          "p_value_one_sided_greater": 3.228680087815527e-32
+        }
+      }
+    }
+  },
+  "clean_subset_no_prereq_in_about_evaluation": {
+    "num_courses": 179,
+    "inferred_vs_gt_cosine": {
+      "mean": 0.509,
+      "std": 0.1458,
+      "median": 0.5264
+    },
+    "baselines": {
+      "course_name_vs_gt": {
+        "mean": 0.425,
+        "std": 0.1823,
+        "median": 0.4182,
+        "wilcoxon_inferred_greater": {
+          "statistic": 11845.0,
+          "p_value_one_sided_greater": 2.390436384033889e-08
+        }
+      },
+      "raw_course_text_vs_gt": {
+        "mean": 0.4308,
+        "std": 0.1462,
+        "median": 0.4469,
+        "wilcoxon_inferred_greater": {
+          "statistic": 12316.0,
+          "p_value_one_sided_greater": 4.1856784610468063e-10
+        }
+      },
+      "random_paired_gt": {
+        "mean": 0.2109,
+        "std": 0.1346,
+        "median": 0.1906,
+        "wilcoxon_inferred_greater": {
+          "statistic": 15814.0,
+          "p_value_one_sided_greater": 2.66066507098576e-29
+        }
+      }
+    }
+  },
+  "paired_cosine": {
+    "mean": 0.5033,
+    "std": 0.1447,
+    "median": 0.5153
+  },
+  "course_name_baseline_cosine": {
+    "mean": 0.4236,
+    "std": 0.184,
+    "median": 0.417,
+    "wilcoxon_inferred_greater": {
+      "statistic": 14581.0,
+      "p_value_one_sided_greater": 1.6140639126508787e-08
+    }
+  },
+  "raw_course_text_baseline_cosine": {
+    "mean": 0.4293,
+    "std": 0.1428,
+    "median": 0.445,
+    "wilcoxon_inferred_greater": {
+      "statistic": 15193.0,
+      "p_value_one_sided_greater": 1.7444086361718417e-10
+    }
+  },
+  "random_baseline_cosine": {
+    "mean": 0.2109,
+    "std": 0.1342,
+    "median": 0.191,
+    "wilcoxon_inferred_greater": {
+      "statistic": 19686.0,
+      "p_value_one_sided_greater": 3.228680087815527e-32
+    }
+  },
+  "wilcoxon_signed_rank_test": {
+    "statistic": 19686.0,
+    "p_value_one_sided_greater": 3.228680087815527e-32
+  }
+}
