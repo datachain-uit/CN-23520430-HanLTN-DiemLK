@@ -1,0 +1,32 @@
+{
+ "E-RQ1": {
+  "ket_luan": "Phụ thuộc kiến trúc",
+  "neu_du_do_ben": "Phụ thuộc kiến trúc",
+  "cai_thien": [
+   "dropoutnet",
+   "mvp"
+  ],
+  "mo_hinh": [
+   "aldi",
+   "dropoutnet",
+   "knn",
+   "mvp"
+  ]
+ },
+ "E-RQ2": {
+  "ket_luan": "Tập trung ở khóa mới",
+  "dat": {
+   "dropoutnet": true,
+   "aldi": true,
+   "mvp": true
+  }
+ },
+ "E-RQ3": {
+  "ket_luan": "Có đóng góp",
+  "tang": [
+   "dropoutnet",
+   "mvp"
+  ],
+  "giam": []
+ }
+}
