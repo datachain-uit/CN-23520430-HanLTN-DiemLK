@@ -1,0 +1,8 @@
+bitsandbytes
+huggingface-hub
+numpy
+pandas
+scipy
+sentence-transformers
+torch
+transformers
