@@ -1,129 +1,125 @@
-# Giải quyết vấn đề khởi động lạnh trong khuyến nghị khóa học trực tuyến bằng tăng cường dữ liệu dựa trên mô hình ngôn ngữ lớn
+# Large Language Model-Based Pedagogical Profile Generation for Cold-Start Online Course Recommendation
 
-## 1. Giới thiệu
+This repository contains the code, processed data, model scores, and analysis notebooks for the paper named above. It studies whether LLM-generated pedagogical profiles improve cold-start online course recommendation.
 
-Dự án nghiên cứu ứng dụng mô hình ngôn ngữ lớn (LLM) để tăng cường thông tin khóa học, hướng đến giải quyết vấn đề khởi động lạnh (*cold-start*) trong hệ thống khuyến nghị khóa học trực tuyến (MOOC).
+The experiments address four questions:
 
-Các thành phần chính:
-- **Dữ liệu:** MOOCCubeX.
-- **LLM:** Qwen2.5-7B-Instruct, dùng để sinh hồ sơ sư phạm 5 chiều cho khóa học.
-- **Mã hóa văn bản:** Sentence-BERT (`all-MiniLM-L6-v2`), tạo vector nhúng 384 chiều.
-- **Đánh giá:** Ba kịch bản Cold-Item, Warm và Few-Shot User; so sánh với các phương pháp cơ sở Random và MostPop.
+- **RQ1:** Does adding LLM-generated pedagogical profiles to raw course texts improve cold-start course recommendation performance across different model architectures?
+- **RQ2:** Are the performance gains from pedagogical profiles concentrated on genuinely new courses or near-duplicate courses?
+- **RQ3:** Do specific pedagogical fields (e.g., prerequisite knowledge and follow-up topics) contribute meaningfully to recommendation performance?
+- **RQ4:** What are the computational costs of LLM-based profile generation and the inference latency overhead during recommendation?
 
-## 2. Cấu trúc thư mục
+## 1. Overview
+
+The repository combines LLM-based course profile generation, collaborative filtering models, and an evaluation workflow for cold-start online course recommendation.
+
+## 2. Repository structure
 
 ```text
-├── data/
-│   ├── course_llm/          # Dữ liệu khóa học, hồ sơ LLM và embeddings
-│   ├── full_interactions/   # Dữ liệu tương tác học viên – khóa học
-│   ├── raw_data_processed/  # Dữ liệu đã tiền xử lý (.csv)
-│   └── splits/              # Các tập train/validation/test
-├── src/
-│   ├── data/                # Notebook kết hợp dữ liệu và chia tập
-│   ├── eval/                # Notebook đánh giá và kiểm thử
-│   ├── prompts/             # Prompt sinh hồ sơ sư phạm
-│   └── course_profile.py    # Sinh hồ sơ LLM và mã hóa văn bản
-├── README.md
-└── requirements.txt
+.
+├── archive/                 # Few-shot data and exploratory notebooks not used in the paper
+├── data/                    # Source-derived data, splits, profiles, and saved embeddings
+├── llm/                     # Course-profile generation, text processing, and SBERT encoding
+├── results/                 # Final statistical tables, verdicts, and appendix reports
+├── scores/                  # Per-user recommendation scores for model comparisons
+└── src/
+    ├── data/                # Data preparation and splitting notebooks
+    ├── eval/                # Evaluation, statistical analysis, and verification scripts
+    ├── losses/              # Auxiliary training losses
+    └── models/              # Model modules and cold/warm scenario notebooks
+        ├── cold_scenario/
+        └── warm_scenario/
 ```
 
-## 3. Cài đặt
+`archive/` holds the few-shot-user scenario data and four exploratory notebooks that are not used in the paper. The warm scenario files remain under `data/splits/warm_scenario/`, `data/embeddings/02_lightgcn_backbone_warm/`, and `src/models/warm_scenario/`; they support the leakage sanity check in Section 4.2.
 
-Yêu cầu Python 3.10 trở lên. GPU hỗ trợ CUDA được khuyến nghị khi chạy Qwen2.5-7B-Instruct.
+## 3. Environment
 
-Cài đặt các thư viện cần thiết:
+Saved notebook metadata records **Python 3.13.15**. Executed model cells report **PyTorch 2.11.0+cu128**, CUDA available, and the CUDA 12.8 wheel build. The GPU model was not recorded in the saved notebook outputs. These are the captured experiment details; the full `pip freeze` from the original hosted runtime was not preserved, so the remaining pins in `requirements.txt` are a reproducible dependency set rather than a recovered full environment lock.
+
+## 4. Installation
+
+From the repository root:
 
 ```bash
-pip install -U bitsandbytes accelerate transformers sentence-transformers scipy pandas pyarrow numpy torch
+python -m pip install -r requirements.txt
+git lfs pull
 ```
 
-> TODO: Cập nhật `requirements.txt` với các phiên bản thư viện đã kiểm thử để bảo đảm khả năng tái lập môi trường.
+The notebook outputs and model weights use Git LFS. GPU execution is needed for LLM generation and the GPU latency measurements; data checks and statistical scripts can run on CPU.
 
-## 4. Hướng dẫn thực thi
+## 5. Data
 
-Thực hiện các bước theo thứ tự sau từ thư mục gốc của dự án.
+The source is [THU-KEG/MOOCCubeX](https://github.com/THU-KEG/MOOCCubeX). Its GitHub repository is marked GPL-3.0, which permits redistribution of material covered by that license when its conditions are followed. The MOOCCubeX paper says the MOOC data was licensed by XuetangX and that the authors were permitted to maintain updates; the upstream materials reviewed do not identify a separate data-only license. The processed files are retained in this checkout with upstream attribution; confirm the scope of the data permission and preserve applicable notices before publishing a raw-data mirror.
 
-### Bước 1. Tiền xử lý dữ liệu
+Key paths:
 
-Chạy notebook `src/data/01-combine-data.ipynb` để kết hợp dữ liệu, sau đó chạy `src/data/02-split-data.ipynb` để tạo các tập dữ liệu cho ba kịch bản đánh giá.
+- `data/raw_data_processed/`: processed MOOCCubeX CSV files. The large `user-course.csv` and `interactions_full.parquet` files are tracked by Git LFS.
+- `data/full_interactions/interactions_full.parquet`: deduplicated interaction history used for splitting and evaluation.
+- `data/course_llm/`: combined course table, generated profiles, quality checks, and text embeddings.
+- `data/splits/cold_scenario/`: train, validation, and test data plus fixed cold-item ID lists.
+- `data/splits/warm_scenario/`: warm split used in the Section 4.2 sanity check.
+- `data/embeddings/01_lightgcn_backbone_cold/` and `02_lightgcn_backbone_warm/`: saved LightGCN user/item embeddings and index maps.
+- `archive/few_shot_user_scenario/`: moved few-shot-user split files, kept for reference and excluded from the paper's main experiments.
 
-Thiết lập lấy mẫu 100.000 học viên với seed `2026`, không lọc k-core.
+The interaction preparation notebook samples **100,000 users with seed 2026** and does not apply a k-core filter. Cold items are selected from the latest 20% of courses by first observed enrollment time. The saved test list contains 502 items and the validation list 251, for 753 cold items in total. `src/eval/check_cold_items.py` recomputes the selection from `interactions_full.parquet`; the check passed with a 753/753 exact match and disjoint validation/test lists. The two JSON files are fixed artifacts produced by the earlier split run.
 
-### Bước 2. Sinh hồ sơ và mã hóa khóa học
+## 6. Pipeline
 
-Tệp thực thi chính: `src/course_profile.py`.
+Run the steps from the repository root in order:
 
-**a. Mã hóa văn bản khóa học gốc**
+1. Combine raw tables: `src/data/01-combine-data.ipynb`.
+2. Build the cold and warm splits: `src/data/02-data-splits.ipynb`.
+3. Generate course profiles: `python llm/course_profile.py` with the desired shard options.
+4. Encode raw descriptions and generated profiles with SBERT: `python llm/course_profile.py --encode_raw_only` for raw text; profile merging also writes the profile embeddings.
+5. Train the LightGCN backbone: `src/models/cold_scenario/lightgcn_backbone_cold.ipynb` (and the warm notebook for the Section 4.2 check).
+6. Run the four main cold-start models: Content-KNN, DropoutNet, ALDI, and SemProj using the notebooks in `src/models/cold_scenario/`, `src/models/coldrec-adapter.ipynb`, and `src/models/semproj_experiments.ipynb`.
+7. Rebuild the statistical comparisons: `results/final-stats.ipynb`.
+
+The course-profile CLI defaults to the local course table and prompt. For example:
 
 ```bash
-python src/course_profile.py \
-    --data_path "data/course_llm/course_data.parquet" \
-    --encode_raw_only \
-    --encoder_name "sentence-transformers/all-MiniLM-L6-v2" \
-    --output_dir "data/course_llm"
+python llm/course_profile.py --data_path data/course_llm/course_data.parquet --prompt_path src/prompts/prompt_template.txt --encode_raw_only --output_dir data/course_llm
 ```
 
-**b. Sinh hồ sơ LLM**
+Profile generation requires access to the selected Hugging Face model and a compatible GPU. The saved profile, embedding, backbone, and score artifacts let readers inspect the reported results without rerunning training.
 
-Chia 3.769 khóa học thành hai shard để xử lý riêng. Ví dụ chạy shard đầu tiên:
+## 7. Reproducing the paper
 
-```bash
-python src/course_profile.py \
-    --data_path "data/course_llm/course_data.parquet" \
-    --prompt_path "src/prompts/prompt_template.txt" \
-    --model_name "Qwen/Qwen2.5-7B-Instruct" \
-    --num_courses 3769 \
-    --shard 0 --num_shards 2 \
-    --max_new_tokens 300 --single_gpu \
-    --output_dir "data/course_llm"
-```
+| Paper section/table | Notebook or script | Output | Expected result / check |
+|---|---|---|---|
+| Table 1: splits | `src/data/02-data-splits.ipynb` | `data/splits/cold_scenario/` | 100,000 sampled users; 753 cold items (251 validation, 502 test) |
+| Section 3.1: profiles and embeddings | `llm/course_profile.py` | `data/course_llm/2_profiles_full_and_shards/`, `data/course_llm/1_embeddings/` | 3,769 courses; 384-dimensional SBERT vectors |
+| Section 3.2: masked prerequisites | `python llm/course_profile.py --masked_prereq_eval` | `data/course_llm/3_quality_evaluation/masked_prereq_200_eval_report.json` | 200-course evaluation report |
+| Section 4.2: leakage sanity check | `src/models/lightgcn_leakage.ipynb` | Notebook output | Warm/cold temporal split check completes without leakage assertions |
+| Section 4.4: LightGCN backbone | `src/models/cold_scenario/lightgcn_backbone_cold.ipynb` | `data/embeddings/01_lightgcn_backbone_cold/g_u.npy`, `g_i.npy` | MD5 prefixes `7a170558` and `d17ad9df` |
+| Table 2: random and ID LightGCN | `src/eval/evaluate_test_random.ipynb`, `src/models/cold_scenario/lightgcn_id_cold.ipynb` | Notebook output; `results/random_ndcg_analytic.txt` | Saved empirical random means: 0.015705 on 502 cold candidates and 0.001983 over the full catalog. Analytic expectations: 0.01587648 and 0.00211462. ID LightGCN reference: 0.0165. |
+| Content-KNN | `src/models/cold_scenario/content-knn-v2.ipynb` | `scores/Content-KNN/` | Fused/raw mean NDCG@20 difference about +0.0001; no significant RQ1 difference |
+| DropoutNet | `src/models/cold_scenario/dropoutnet-v2.ipynb`, `src/models/cold_scenario/dropoutnet-v2-p-rq3.ipynb`, `src/models/cold_scenario/dropoutnet-llm-3d.ipynb` | `scores/DropoutNet/` | RQ1 fused/raw Δ=+0.0103; RQ2 new-course Δ=+0.0147; RQ3 fused-profile 5D−3D Δ=+0.0044 |
+| ALDI | `src/models/coldrec-adapter.ipynb`, `src/models/run_aldi.py` | `scores/ALDI/` | RQ1 fused/raw Δ=−0.0018; not significant in the saved final comparison |
+| SemProj | `src/models/semproj_experiments.ipynb`, `src/models/semproj.py` | `scores/SemProj/` | RQ1 fused/raw Δ=+0.0142; RQ2 new-course Δ=+0.0212; RQ3 fused-profile 5D−3D Δ=+0.0122 |
+| Section 6.5: USIM | `src/models/coldrec-adapter-usim-raw.ipynb` | Notebook output and `scores/USIM/` when rerun | Check backbone loading, identity mapping, and cold-validation score before running test evaluation |
+| Tables 2–4 and RQ verdicts | `results/final-stats.ipynb` | `results/final_stats.csv`, `results/verdicts.json` | Saved RQ1–RQ3 verdicts and paired statistical tests |
+| Supplementary RQ4: inference latency | `src/models/semproj_experiments.ipynb`, `src/models/cold_scenario/content-knn-v2.ipynb` | Notebook output; SemProj writes `results_semproj/prq4_latency_gpu.csv` when rerun | Content-KNN measured 0.0024 ms/user for raw and LLM profiles, and 0.0035 ms/user for fused profiles; saved environment does not identify the GPU model |
+| Sections 6.3/6.5: appendix checks | `src/eval/random_ndcg_analytic.py`, `src/eval/time_consistent_subset.py` | `results/random_ndcg_analytic.txt`, `results/time_consistent_subset.txt` | Analytic random expectations 0.01587648 (cold-only) and 0.00211462 (full catalog); time-consistent subset retains 1,402/5,531 test interactions (25.35%) |
+| Appendix B.3: cold-item rule | `src/eval/check_cold_items.py` | Console report | Exact match compares the fixed JSON union against the latest 20% of courses |
 
-Chạy shard thứ hai bằng cách đổi `--shard 0` thành `--shard 1`.
+The saved final comparison reports an RQ2 improvement concentrated on new courses, and a positive RQ3 five-dimension effect for DropoutNet and SemProj. Absolute means and confidence intervals are in `results/final_stats_tables_with_notes.csv`; `results/final_stats.csv` contains the paired-test details.
 
-**c. Gộp hồ sơ và tạo embeddings**
+### External implementations
 
-```bash
-python src/course_profile.py \
-    --data_path "data/course_llm/course_data.parquet" \
-    --merge_shards --num_shards 2 \
-    --encoder_name "sentence-transformers/all-MiniLM-L6-v2" \
-    --output_dir "data/course_llm"
-```
+The notebooks pin the upstream repositories to the commits below:
 
-**d. Đánh giá khả năng suy luận tiên quyết bị ẩn**
+- [ColdRec](https://github.com/YuanchenBei/ColdRec), MIT-licensed upstream: `1108192665aca2cb94b3aeb5bfed29850874eb1c`.
+- [ALDI](https://github.com/zfnWong/ALDI): `87f9fe369427402bd989728c4d27b543b2d19cd4`. No license file was visible in the upstream repository listing reviewed; inspect upstream terms before redistributing its code.
 
-```bash
-python src/course_profile.py \
-    --data_path "data/course_llm/course_data.parquet" \
-    --prompt_path "src/prompts/prompt_template.txt" \
-    --model_name "Qwen/Qwen2.5-7B-Instruct" \
-    --masked_prereq_eval \
-    --eval_sample_size 200 --eval_seed 2026 \
-    --max_new_tokens 300 --single_gpu \
-    --output_dir "data/course_llm"
-```
+`src/models/coldrec_fix.py` applies the local USIM compatibility changes: removes the stale SimCSR import, preserves original user/item IDs (including cold items missing from training CSVs), evaluates USIM on cold validation, and writes the LightGCN backbone and corrected `info_dict.pkl` expected by ColdRec.
 
-### Bước 3. Đánh giá hệ thống
+## 8. Citation and licensing
 
-Chạy notebook `src/eval/03-evaluate.ipynb` để thực hiện kiểm thử và đánh giá các phương pháp cơ sở Random, MostPop trên ba kịch bản.
+The paper title is available in the project materials, but author, venue, year, and DOI metadata were not present in the supplied repository snapshot. Cite the paper using its final published metadata when available.
 
-## 5. Kết quả đầu ra
-
-Các tệp chính được lưu trong `data/course_llm/`:
-
-| Tệp | Mô tả |
-|---|---|
-| `full_3769_profiles.json` | Hồ sơ sư phạm 5 chiều của 3.769 khóa học |
-| `llm_profile_embeddings.npy` | Vector nhúng hồ sơ LLM, kích thước `(3769, 384)` |
-| `raw_course_text_embeddings.npy` | Vector nhúng văn bản khóa học gốc, kích thước `(3769, 384)` |
-| `embeddings_course_index.json` | Ánh xạ chỉ số khóa học và thông tin liên quan |
-| `masked_prereq_200_eval_report.json` | Báo cáo đánh giá trên 200 khóa học có tiên quyết bị ẩn |
-
-Các tệp báo cáo benchmark và phân tích bổ sung được tạo trong quá trình thực thi.
-
-## 6. Trích dẫn dữ liệu
-
-Dự án sử dụng bộ dữ liệu MOOCCubeX:
+Please cite MOOCCubeX when using the dataset:
 
 ```bibtex
 @inproceedings{yu2021mooccubex,
@@ -134,3 +130,5 @@ Dự án sử dụng bộ dữ liệu MOOCCubeX:
   year={2021}
 }
 ```
+
+This repository snapshot has no root `LICENSE` file, so it does not declare an overall license for its code. MOOCCubeX upstream is marked GPL-3.0; ColdRec is marked MIT; check the respective upstream notices and the data-source terms when redistributing those materials.

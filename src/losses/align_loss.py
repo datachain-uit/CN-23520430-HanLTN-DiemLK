@@ -17,7 +17,7 @@ def align_loss(
         s: [B_I, d] - Vector ngữ nghĩa sau chiếu f(s_i) của các khóa ấm DUY NHẤT trong batch.
         dup_group_id: [B_I] - Mã nhóm trùng lặp (gộp bắc cầu trùng tên chuẩn hóa hoặc trùng mô tả).
         tau: Nhiệt độ InfoNCE (mặc định 0.2).
-        use_false_neg_mask: Đặt True cho MVP chính; đặt False khi chạy Ablation "bỏ mặt nạ âm giả".
+        use_false_neg_mask: Đặt True cho SemProj chính; đặt False khi chạy Ablation "bỏ mặt nạ âm giả".
     """
     g_norm = F.normalize(g, dim=-1)
     s_norm = F.normalize(s, dim=-1)

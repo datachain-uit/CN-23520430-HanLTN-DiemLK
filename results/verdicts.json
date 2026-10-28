@@ -4,13 +4,13 @@
   "neu_du_do_ben": "Phụ thuộc kiến trúc",
   "cai_thien": [
    "dropoutnet",
-   "mvp"
+   "semproj"
   ],
   "mo_hinh": [
    "aldi",
    "dropoutnet",
    "knn",
-   "mvp"
+   "semproj"
   ]
  },
  "E-RQ2": {
@@ -18,14 +18,14 @@
   "dat": {
    "dropoutnet": true,
    "aldi": true,
-   "mvp": true
+   "semproj": true
   }
  },
  "E-RQ3": {
   "ket_luan": "Có đóng góp",
   "tang": [
    "dropoutnet",
-   "mvp"
+   "semproj"
   ],
   "giam": []
  }

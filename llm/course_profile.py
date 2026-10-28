@@ -3,6 +3,7 @@ import os
 import json
 import gc
 import argparse
+from pathlib import Path
 import pandas as pd
 import torch
 import transformers
@@ -107,8 +108,9 @@ def merge_shards_and_encode(df, args):
 
 def main():
     parser = argparse.ArgumentParser(description="Sinh hồ sơ sư phạm 5 chiều bằng LLM và mã hóa văn bản SBERT")
-    parser.add_argument("--data_path", type=str, default="/kaggle/input/datasets/luongdiem/course-llm/course_data.parquet")
-    parser.add_argument("--prompt_path", type=str, default="/kaggle/input/datasets/luongdiem/prompts/prompt_template.txt")
+    repo_root = Path(os.environ.get("DATA_DIR", Path(__file__).resolve().parents[1])).expanduser().resolve()
+    parser.add_argument("--data_path", type=str, default=str(repo_root / "data/course_llm/course_data.parquet"))
+    parser.add_argument("--prompt_path", type=str, default=str(repo_root / "src/prompts/prompt_template.txt"))
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-7B-Instruct")
     parser.add_argument("--num_courses", type=int, default=50)
     parser.add_argument("--max_new_tokens", type=int, default=300)
@@ -117,7 +119,7 @@ def main():
     parser.add_argument("--encode_batch_size", type=int, default=32)
     parser.add_argument("--single_gpu", action=argparse.BooleanOptionalAction, default=True)
     parser.add_argument("--add_inferred_hint", action=argparse.BooleanOptionalAction, default=True)
-    parser.add_argument("--output_dir", type=str, default="./output_pilot50")
+    parser.add_argument("--output_dir", type=str, default=str(repo_root / "data/course_llm"))
     parser.add_argument("--shard", type=int, default=0)
     parser.add_argument("--num_shards", type=int, default=1)
     parser.add_argument("--item2idx_path", type=str, default=None)

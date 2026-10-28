@@ -1,0 +1,7 @@
+Time-consistent cold-test subset
+Whole-dataset interaction-time quantile: 0.90
+Cutoff enroll_time: 1601908438.2
+Cold-test items first seen at/after cutoff: 183/502 (36.45%)
+Retained cold-test interactions: 1402/5531 (25.35%)
+Users with a retained target: 1200/3340
+Subset rule: retain a cold-test target only when the course's first recorded interaction in the full dataset is at/after the stated cutoff.
