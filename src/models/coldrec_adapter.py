@@ -251,7 +251,10 @@ class ColdRecDataAdapter:
         và mã chính thức zfnWong/ALDI yêu cầu, giữ nguyên chỉ số 0..98219 và
         0..3768.
         """
-        ds_dir = os.path.join(self.output_dir, "ColdRec_Data", dataset_name)
+        # OUTPUT_DIR already points at <repo>/ColdRec_Data. Avoid creating the
+        # accidental <repo>/ColdRec_Data/ColdRec_Data/<dataset> nesting that
+        # prevented downstream ColdRec notebooks from finding cold_item/.
+        ds_dir = os.path.join(self.output_dir, dataset_name)
         cold_item_dir = os.path.join(ds_dir, "cold_item")
         os.makedirs(ds_dir, exist_ok=True)
         os.makedirs(cold_item_dir, exist_ok=True)
