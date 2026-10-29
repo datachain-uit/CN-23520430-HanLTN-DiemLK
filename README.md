@@ -1,139 +1,143 @@
 # Large Language Model-Based Pedagogical Profile Generation for Cold-Start Online Course Recommendation
 
-This repository contains the code, processed data, model scores, and analysis notebooks for the paper named above. It studies whether LLM-generated pedagogical profiles improve cold-start online course recommendation.
+This repository contains the data processing, course-profile generation, recommendation experiments, and saved per-user scores for the paper. The reported method named **MVP** in the manuscript is implemented here as **SemProj**.
 
-The experiments address four questions:
+The experiments ask whether pedagogical profiles improve cold-start recommendation (RQ1), whether gains vary between new and near-duplicate courses (RQ2), whether the five profile fields contribute to performance (RQ3), and what profile-generation cost and inference latency they add (RQ4).
 
-- **RQ1:** Does adding LLM-generated pedagogical profiles to raw course texts improve cold-start course recommendation performance across different model architectures?
-- **RQ2:** Are the performance gains from pedagogical profiles concentrated on genuinely new courses or near-duplicate courses?
-- **RQ3:** Do specific pedagogical fields (e.g., prerequisite knowledge and follow-up topics) contribute meaningfully to recommendation performance?
-- **RQ4:** What are the computational costs of LLM-based profile generation and the inference latency overhead during recommendation?
+## Repository contents
 
-## 1. Overview
+| Path | Purpose |
+|---|---|
+| `data/` | Source-derived tables, fixed train/validation/test splits, course profiles, text vectors, and LightGCN embeddings |
+| `llm/` | Qwen-based course-profile generation and Sentence-BERT encoding |
+| `src/data/` | Data preparation and split notebooks |
+| `src/models/` | Cold-start and warm-scenario model notebooks and Python modules |
+| `src/eval/` | Evaluation utilities, cold-item checks, and supplementary analyses |
+| `scores/` | Per-user NDCG@20 arrays used for the published statistical comparisons |
+| `results/` | Statistical tables, verdicts, supplementary outputs, and the final-statistics notebook |
+| `archive/` | Few-shot-user data and exploratory notebooks not used in the paper |
 
-The repository combines LLM-based course profile generation, collaborative filtering models, and an evaluation workflow for cold-start online course recommendation.
+All notebooks locate the repository root automatically. When running code from another working directory, set `DATA_DIR` to the repository root:
 
-## 2. Repository structure
-
-```text
-.
-├── archive/                 # Few-shot data and exploratory notebooks not used in the paper
-├── data/                    # Source-derived data, splits, profiles, and saved embeddings
-├── llm/                     # Course-profile generation, text processing, and SBERT encoding
-├── results/                 # Final statistical tables, verdicts, and appendix reports
-├── scores/                  # Per-user recommendation scores for model comparisons
-└── src/
-    ├── data/                # Data preparation and splitting notebooks
-    ├── eval/                # Evaluation, statistical analysis, and verification scripts
-    ├── losses/              # Auxiliary training losses
-    └── models/              # Model modules and cold/warm scenario notebooks
-        ├── cold_scenario/
-        └── warm_scenario/
+```powershell
+$env:DATA_DIR = (Get-Location).Path
 ```
 
-`archive/` holds the few-shot-user scenario data and four exploratory notebooks that are not used in the paper. The warm scenario files remain under `data/splits/warm_scenario/`, `data/embeddings/02_lightgcn_backbone_warm/`, and `src/models/warm_scenario/`; they support the leakage sanity check in Section 4.2.
+```bash
+export DATA_DIR="$PWD"
+```
 
-## 3. Environment
+## Data and environment
 
-Saved notebook metadata records **Python 3.13.15**. Executed model cells report **PyTorch 2.11.0+cu128**, CUDA available, and the CUDA 12.8 wheel build. The GPU model was not recorded in the saved notebook outputs. These are the captured experiment details; the full `pip freeze` from the original hosted runtime was not preserved, so the remaining pins in `requirements.txt` are a reproducible dependency set rather than a recovered full environment lock.
+The source dataset is [THU-KEG/MOOCCubeX](https://github.com/THU-KEG/MOOCCubeX). The upstream repository includes a [GPL-3.0 license file](https://github.com/THU-KEG/MOOCCubeX/blob/main/LICENSE), while the [MOOCCubeX paper](https://lfs.aminer.cn/misc/moocdata/publications/mooccubex.pdf) describes data licensed by XuetangX; the reviewed materials do not state separate data-only terms. Preserve upstream attribution and check the applicable data terms before redistributing the data. This repository has no root `LICENSE` file, so it does not declare an overall license for its code.
 
-## 4. Installation
-
-From the repository root:
+The checkout includes the processed inputs and derived artifacts used in the reported experiments. The large interaction files are stored with Git LFS. Install the captured Python dependencies from the repository root:
 
 ```bash
 python -m pip install -r requirements.txt
+git lfs install
 git lfs pull
 ```
 
-The notebook outputs and model weights use Git LFS. GPU execution is needed for LLM generation and the GPU latency measurements; data checks and statistical scripts can run on CPU.
+The recorded environment is Python 3.13.15 and PyTorch 2.11.0+cu128. The original GPU model was not recorded. CUDA is required for profile generation and GPU latency measurements; data validation and statistical analysis can run on CPU. The pinned PyTorch build targets CUDA 12.8.
 
-## 5. Data
+The split preparation samples 100,000 learners with seed 2026 and does not apply a k-core filter. The committed cold-item lists select the latest 20% of courses by first recorded enrollment time: 753 items total, with 251 for validation and 502 for test. `check_cold_items.py` verifies the saved lists against that selection rule.
 
-The source is [THU-KEG/MOOCCubeX](https://github.com/THU-KEG/MOOCCubeX). Its GitHub repository is marked GPL-3.0, which permits redistribution of material covered by that license when its conditions are followed. The MOOCCubeX paper says the MOOC data was licensed by XuetangX and that the authors were permitted to maintain updates; the upstream materials reviewed do not identify a separate data-only license. The processed files are retained in this checkout with upstream attribution; confirm the scope of the data permission and preserve applicable notices before publishing a raw-data mirror.
+## Reproduction
 
-Key paths:
+Run commands from the repository root after installing dependencies and retrieving Git LFS files.
 
-- `data/raw_data_processed/`: processed MOOCCubeX CSV files. The large `user-course.csv` and `interactions_full.parquet` files are tracked by Git LFS.
-- `data/full_interactions/interactions_full.parquet`: deduplicated interaction history used for splitting and evaluation.
-- `data/course_llm/`: combined course table, generated profiles, quality checks, and text embeddings.
-- `data/splits/cold_scenario/`: train, validation, and test data plus fixed cold-item ID lists.
-- `data/splits/warm_scenario/`: warm split used in the Section 4.2 sanity check.
-- `data/embeddings/01_lightgcn_backbone_cold/` and `02_lightgcn_backbone_warm/`: saved LightGCN user/item embeddings and index maps.
-- `archive/few_shot_user_scenario/`: moved few-shot-user split files, kept for reference and excluded from the paper's main experiments.
+### 1. Quick demo and inference
 
-The interaction preparation notebook samples **100,000 users with seed 2026** and does not apply a k-core filter. Cold items are selected from the latest 20% of courses by first observed enrollment time. The saved test list contains 502 items and the validation list 251, for 753 cold items in total. `src/eval/check_cold_items.py` recomputes the selection from `interactions_full.parquet`; the check passed with a 753/753 exact match and disjoint validation/test lists. The two JSON files are fixed artifacts produced by the earlier split run.
-
-## 6. Pipeline
-
-Run the steps from the repository root in order:
-
-1. Combine raw tables: `src/data/01-combine-data.ipynb`.
-2. Build the cold and warm splits: `src/data/02-data-splits.ipynb`.
-3. Generate course profiles: `python llm/course_profile.py` with the desired shard options.
-4. Encode raw descriptions and generated profiles with SBERT: `python llm/course_profile.py --encode_raw_only` for raw text; profile merging also writes the profile embeddings.
-5. Train the LightGCN backbone: `src/models/cold_scenario/lightgcn_backbone_cold.ipynb` (and the warm notebook for the Section 4.2 check).
-6. Run the four main cold-start models: Content-KNN, DropoutNet, ALDI, and SemProj. The entry notebook runs their source notebooks and scripts; it does not run the legacy ColdRec USIM/CGRC comparison.
-7. Rebuild the statistical comparisons: `results/final-stats.ipynb`.
-
-The course-profile CLI defaults to the local course table and prompt. For example:
+Check that the saved cold-item lists agree with the latest-course selection rule, then generate one course profile as a small LLM inference example:
 
 ```bash
-python llm/course_profile.py --data_path data/course_llm/course_data.parquet --prompt_path src/prompts/prompt_template.txt --encode_raw_only --output_dir data/course_llm
+python src/eval/check_cold_items.py --strict
+python llm/course_profile.py --num_courses 1 --max_new_tokens 300 --output_dir results/quick_demo
 ```
 
-Profile generation requires access to the selected Hugging Face model and a compatible GPU. The saved profile, embedding, backbone, and score artifacts let readers inspect the reported results without rerunning training.
+The inference command downloads Qwen2.5-7B-Instruct and the Sentence-BERT encoder on first use. It requires access to the model repository and a compatible NVIDIA GPU. Demo outputs are written to `results/quick_demo/`.
 
-### How to run `reproduce_paper.ipynb`
+### 2. Evaluate the reported results
 
-The notebook is a standalone file in the repository; the README provides instructions and a link to it. Open [reproduce_paper.ipynb](reproduce_paper.ipynb), then run it in Kaggle, Google Colab, or Jupyter/VS Code on a local machine. When sharing the project, commit the notebook and the related source changes to the repository. Readers can open or download the notebook from this link.
+The repository contains LightGCN embeddings and all per-user score arrays used for the paper's tables. It does **not** contain trained weight checkpoints for every recommendation model. The evaluation below recomputes the statistical tables from the saved scores; regenerate scores by following the training workflow if you need to rerun model inference.
 
-1. **Prepare the environment.** Enable Internet access so the notebook can fetch the source code, Git LFS data, and Python packages. Ensure that the machine has enough disk space and memory for the data and experiments. By default, the notebook uses the saved profiles and embeddings, so a GPU is not needed to regenerate them. Regenerating Qwen 7B profiles requires a CUDA-compatible NVIDIA GPU with sufficient memory.
-2. **Select the source revision.** In the first configuration cell, set `REPO_REF` to the commit SHA you want to reproduce (for example, replace the default `draft` value with the SHA of the published version). You can also configure it with the `REPRO_REPO_REF` environment variable. The notebook records the resolved commit in `environment_manifest.json`.
-3. **Choose the run mode.** RUN_EXPERIMENTS defaults to 1 and runs the checks and main paper experiments, including ALDI from the repository code. It does not run the legacy ColdRec comparison, CGRC, or USIM tuning. RUN_USIM_RAW_SCREEN defaults to 0; set it to 1 only to repeat the single raw USIM screening run. REGENERATE_LLM_PROFILES defaults to 0 and uses the saved profiles and embeddings. Profile regeneration requires a compatible NVIDIA GPU. Set these environment variables before starting the kernel or change them in the first configuration cell.
-4. **Run all cells in order.** The notebook detects the environment, finds an existing repository or clones it, checks dependencies, downloads Git LFS data, fixes random seeds, checks the input files, and runs the main pipeline. Kaggle and Colab can install Git LFS automatically; on other systems, install Git LFS first or set REPRO_REPO_PATH to a complete local checkout. If the notebook is outside the repository directory, set REPRO_REPO_PATH to that checkout.
-5. **Review the results.** Each run saves an environment manifest and executed notebooks under `results/reproduction_runs/<run_id>/`. The runtime depends on the hardware; a full pipeline run may take several hours.
+```bash
+python -c "from pathlib import Path; Path('results/reproduction_runs').mkdir(parents=True, exist_ok=True)"
+python src/eval/check_cold_items.py --strict
+python src/eval/random_ndcg_analytic.py
+python src/eval/time_consistent_subset.py
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output final-stats-executed.ipynb --output-dir results/reproduction_runs results/final-stats.ipynb
+```
 
-The notebook makes the workflow easier to reproduce across platforms, but successful execution cannot be guaranteed on every machine. Results depend on network access, GitHub/Git LFS permissions, compatible package versions, available memory, and hardware. For comparable results, use the same commit SHA, data, and experiment settings; the manifest records environment versions to help identify differences.
+The executed notebook is saved under `results/reproduction_runs/`. It recreates `results/final_stats.csv`, `results/final_stats_tables_with_notes.csv`, and `results/verdicts.json` from the checked-in score arrays.
 
-## 7. Reproducing the paper
-
-| Paper section/table | Notebook or script | Output | Expected result / check |
+| Paper result | Notebook or script | Main output | Expected check |
 |---|---|---|---|
-| Table 1: splits | `src/data/02-data-splits.ipynb` | `data/splits/cold_scenario/` | 100,000 sampled users; 753 cold items (251 validation, 502 test) |
-| Section 3.1: profiles and embeddings | `llm/course_profile.py` | `data/course_llm/2_profiles_full_and_shards/`, `data/course_llm/1_embeddings/` | 3,769 courses; 384-dimensional SBERT vectors |
-| Section 3.2: masked prerequisites | `python llm/course_profile.py --masked_prereq_eval` | `data/course_llm/3_quality_evaluation/masked_prereq_200_eval_report.json` | 200-course evaluation report |
-| Section 4.2: leakage sanity check | `src/models/lightgcn_leakage.ipynb` | Notebook output | Warm/cold temporal split check completes without leakage assertions |
-| Section 4.4: LightGCN backbone | `src/models/cold_scenario/lightgcn_backbone_cold.ipynb` | `data/embeddings/01_lightgcn_backbone_cold/g_u.npy`, `g_i.npy` | MD5 prefixes `7a170558` and `d17ad9df` |
-| Table 2: random and ID LightGCN | `src/eval/evaluate_test_random.ipynb`, `src/models/cold_scenario/lightgcn_id_cold.ipynb` | Notebook output; `results/random_ndcg_analytic.txt` | Saved empirical random means: 0.015705 on 502 cold candidates and 0.001983 over the full catalog. Analytic expectations: 0.01587648 and 0.00211462. ID LightGCN reference: 0.0165. |
-| Content-KNN | `src/models/cold_scenario/content-knn-v2.ipynb` | `scores/Content-KNN/` | Fused/raw mean NDCG@20 difference about +0.0001; no significant RQ1 difference |
-| DropoutNet | `src/models/cold_scenario/dropoutnet-v2.ipynb`, `src/models/cold_scenario/dropoutnet-v2-p-rq3.ipynb`, `src/models/cold_scenario/dropoutnet-llm-3d.ipynb` | `scores/DropoutNet/` | RQ1 fused/raw Δ=+0.0103; RQ2 new-course Δ=+0.0147; RQ3 fused-profile 5D−3D Δ=+0.0044 |
-| ALDI | src/models/coldrec_adapter.py, src/models/run_aldi.py | scores/ALDI/ | RQ1 fused/raw Δ=−0.0018; not significant in the saved final comparison |
-| SemProj | `src/models/semproj_experiments.ipynb`, `src/models/semproj.py` | `scores/SemProj/` | RQ1 fused/raw Δ=+0.0142; RQ2 new-course Δ=+0.0212; RQ3 fused-profile 5D−3D Δ=+0.0122 |
-| USIM limitation screen (optional) | src/models/coldrec-adapter-usim-raw.ipynb | Executed notebook under results/reproduction_runs/<run_id>/ | Raw, one-seed screening only; current saved run fails the cold-test NDCG@20 gate (0.0053 vs. 0.0165), so it is not tuned or included in final tables |
-| Tables 2–4 and RQ verdicts | `results/final-stats.ipynb` | `results/final_stats.csv`, `results/verdicts.json` | Saved RQ1–RQ3 verdicts and paired statistical tests |
-| Supplementary RQ4: inference latency | `src/models/semproj_experiments.ipynb`, `src/models/cold_scenario/content-knn-v2.ipynb` | Notebook output; SemProj writes `results_semproj/prq4_latency_gpu.csv` when rerun | Content-KNN measured 0.0024 ms/user for raw and LLM profiles, and 0.0035 ms/user for fused profiles; saved environment does not identify the GPU model |
-| Sections 6.3/6.5: appendix checks | `src/eval/random_ndcg_analytic.py`, `src/eval/time_consistent_subset.py` | `results/random_ndcg_analytic.txt`, `results/time_consistent_subset.txt` | Analytic random expectations 0.01587648 (cold-only) and 0.00211462 (full catalog); time-consistent subset retains 1,402/5,531 test interactions (25.35%) |
-| Appendix B.3: cold-item rule | `src/eval/check_cold_items.py` | Console report | Exact match compares the fixed JSON union against the latest 20% of courses |
+| Table 1: data splits | `src/data/02-data-splits.ipynb` | `data/splits/cold_scenario/`, `data/splits/warm_scenario/`, `results/split_statistics.csv` | 100,000 sampled learners; 753 cold items (251 validation, 502 test) |
+| Course profiles and embeddings | `llm/course_profile.py` | `data/course_llm/2_profiles_full_and_shards/`, `data/course_llm/1_embeddings/` | 3,769 courses; 384-dimensional text vectors |
+| Masked-prerequisite evaluation | `llm/course_profile.py` (`--masked_prereq_eval` option) | `data/course_llm/3_quality_evaluation/masked_prereq_200_eval_report.json` | 200-course report |
+| Leakage sanity check | `src/models/lightgcn_leakage.ipynb` | Notebook output | Warm/cold split assertions complete without leakage flags |
+| LightGCN backbone | `src/models/cold_scenario/lightgcn_backbone_cold.ipynb` | `data/embeddings/01_lightgcn_backbone_cold/g_u.npy`, `g_i.npy` | MD5 prefixes `7a170558` and `d17ad9df` |
+| Random and ID baselines | `src/eval/evaluate_test_random.ipynb`, `src/models/cold_scenario/lightgcn_id_cold.ipynb` | Notebook output; `results/random_ndcg_analytic.txt` | Empirical random cold-test NDCG@20: 0.0157 ± 0.0010; LightGCN ID reference: 0.0165 |
+| Content-KNN | `src/models/cold_scenario/content-knn-v2.ipynb` | `scores/Content-KNN/` | Raw+Profile versus Raw ΔNDCG@20 ≈ +0.0001 |
+| DropoutNet | `src/models/cold_scenario/dropoutnet-v2.ipynb`, `dropoutnet-v2-p-rq3.ipynb`, `dropoutnet-llm-3d.ipynb` | `scores/DropoutNet/` | RQ1 Δ=+0.0103; new-course RQ2 Δ=+0.0147; five-field RQ3 Δ=+0.0044 |
+| ALDI | `src/models/run_aldi.py` and `src/models/coldrec-adapter.ipynb` | `scores/ALDI/` | RQ1 Δ=−0.0018; not significant in the saved comparison |
+| MVP (SemProj in this repository) | `src/models/semproj_experiments.ipynb` | `scores/SemProj/` | RQ1 Δ=+0.0142; new-course RQ2 Δ=+0.0212; five-field RQ3 Δ=+0.0122 |
+| RQ4: profile-generation cost and latency | `llm/course_profile.py`, `src/models/semproj_experiments.ipynb`, `src/models/cold_scenario/content-knn-v2.ipynb` | Notebook output; `results_semproj/` | 12.13 GPU-hours; 11.58 s/course; peak VRAM about 5.5 GB; Content-KNN latency 1.49×/2.22× |
+| Tables 2–4 and RQ verdicts | `results/final-stats.ipynb` | `results/final_stats.csv`, `results/verdicts.json` | RQ1 architecture-dependent; RQ2 concentrated on genuinely new courses; RQ3 contributes |
+| Supplementary analyses | `src/eval/random_ndcg_analytic.py`, `src/eval/time_consistent_subset.py` | `results/random_ndcg_analytic.txt`, `results/time_consistent_subset.txt` | Random-ranking expectations: 0.01587648 (cold-only) and 0.00211462 (full catalog); time-consistent subset: 1,402/5,531 interactions |
 
-The saved final comparison reports an RQ2 improvement concentrated on new courses, and a positive RQ3 five-dimension effect for DropoutNet and SemProj. Absolute means and confidence intervals are in `results/final_stats_tables_with_notes.csv`; `results/final_stats.csv` contains the paired-test details.
+The cold-item lists committed under `data/splits/cold_scenario/` are the canonical lists for reproducing the paper. To generate a new deterministic 80/20 cold-item selection and save it separately, run:
 
-### USIM and CGRC scope
+```bash
+python src/eval/generate_cold_items.py --seed 2026
+python src/eval/check_cold_items.py --lists-dir data/splits/cold_scenario/generated_cold_items --strict
+```
 
-CGRC is excluded from the reproduction workflow. The optional USIM check runs only the raw input with one seed. Its saved run passed the backbone/cold-setting log check and did not show the epoch-11 stagnation pattern, but its cold-test NDCG@20 was 0.0053, below the LightGCN ID reference of 0.0165. The third screening condition therefore failed; no hyperparameter tuning, fused/LLM runs, multi-seed results, or USIM scores are included in the paper tables. Present USIM as a limitation. Set RUN_USIM_RAW_SCREEN=1 only if you want to repeat that raw screening run.
+The generated validation/test assignment is for a new run and does not replace the committed paper split. Keep the committed JSON files when reproducing the published scores.
 
-### External implementations
+### 3. Train from scratch
 
-The optional USIM screen pins its upstream ColdRec repository to the commit below. The default entrypoint runs ALDI from repository code and skips the legacy ColdRec comparison, including CGRC:
+The repository contains the source-derived data required by the preparation notebooks. Run the preparation steps in order. The following commands save executed copies under `results/reproduction_runs/`:
 
-- [ColdRec](https://github.com/YuanchenBei/ColdRec), MIT-licensed upstream: `1108192665aca2cb94b3aeb5bfed29850874eb1c`.
-- [ALDI](https://github.com/zfnWong/ALDI): `87f9fe369427402bd989728c4d27b543b2d19cd4`. No license file was visible in the upstream repository listing reviewed; inspect upstream terms before redistributing its code.
+```bash
+python -c "from pathlib import Path; Path('results/reproduction_runs').mkdir(parents=True, exist_ok=True)"
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output combine-data-executed.ipynb --output-dir results/reproduction_runs src/data/01-combine-data.ipynb
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output data-splits-executed.ipynb --output-dir results/reproduction_runs src/data/02-data-splits.ipynb
+```
 
-`src/models/coldrec_fix.py` applies the local USIM compatibility changes: removes the stale SimCSR import, preserves original user/item IDs (including cold items missing from training CSVs), evaluates USIM on cold validation, and writes the LightGCN backbone and corrected `info_dict.pkl` expected by ColdRec.
+Generate course profiles in two shards, then merge them and encode the course text:
 
-## 8. Citation and licensing
+```bash
+python llm/course_profile.py --num_courses 0 --shard 0 --num_shards 2 --output_dir data/course_llm/2_profiles_full_and_shards
+python llm/course_profile.py --num_courses 0 --shard 1 --num_shards 2 --output_dir data/course_llm/2_profiles_full_and_shards
+python llm/course_profile.py --merge_shards --num_shards 2 --output_dir data/course_llm/2_profiles_full_and_shards
+```
 
-The paper title is available in the project materials, but author, venue, year, and DOI metadata were not present in the supplied repository snapshot. Cite the paper using its final published metadata when available.
+Train the backbone and recommendation models. These runs can take hours and require a CUDA-capable GPU for the neural models.
+
+```bash
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output lightgcn-leakage-executed.ipynb --output-dir results/reproduction_runs src/models/lightgcn_leakage.ipynb
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output lightgcn-backbone-executed.ipynb --output-dir results/reproduction_runs src/models/cold_scenario/lightgcn_backbone_cold.ipynb
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output content-knn-executed.ipynb --output-dir results/reproduction_runs src/models/cold_scenario/content-knn-v2.ipynb
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output dropoutnet-executed.ipynb --output-dir results/reproduction_runs src/models/cold_scenario/dropoutnet-v2.ipynb
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output dropoutnet-rq3-executed.ipynb --output-dir results/reproduction_runs src/models/cold_scenario/dropoutnet-v2-p-rq3.ipynb
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output dropoutnet-3d-executed.ipynb --output-dir results/reproduction_runs src/models/cold_scenario/dropoutnet-llm-3d.ipynb
+python src/models/run_aldi.py
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output semproj-executed.ipynb --output-dir results/reproduction_runs src/models/semproj_experiments.ipynb
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output final-stats-executed.ipynb --output-dir results/reproduction_runs results/final-stats.ipynb
+```
+
+The optional raw-only USIM screen is a limitation analysis and is not included in the paper's result tables. CGRC is not part of this workflow. To repeat the USIM screen, run:
+
+```bash
+python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output usim-raw-executed.ipynb --output-dir results/reproduction_runs src/models/coldrec-adapter-usim-raw.ipynb
+```
+
+## External implementations and citation
+
+The optional ColdRec/USIM screen uses upstream ColdRec commit `1108192665aca2cb94b3aeb5bfed29850874eb1c` (MIT). ALDI is implemented in the repository's local PyTorch runner; its upstream reference is [zfnWong/ALDI](https://github.com/zfnWong/ALDI), commit `87f9fe369427402bd989728c4d27b543b2d19cd4`. Review upstream license terms before redistributing third-party code.
 
 Please cite MOOCCubeX when using the dataset:
 
@@ -147,4 +151,4 @@ Please cite MOOCCubeX when using the dataset:
 }
 ```
 
-This repository snapshot has no root `LICENSE` file, so it does not declare an overall license for its code. MOOCCubeX upstream is marked GPL-3.0; ColdRec is marked MIT; check the respective upstream notices and the data-source terms when redistributing those materials.
+The paper's author, venue, year, and DOI metadata were not included in this repository snapshot. Cite the final published paper metadata when available.

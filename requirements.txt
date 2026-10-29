@@ -1,5 +1,5 @@
-# Captured experiment runtime: Python 3.13.15, PyTorch 2.11.0+cu128.
-# Install the CUDA 12.8 PyTorch wheel from the official PyTorch index.
+# Môi trường thí nghiệm đã ghi nhận: Python 3.13.15, PyTorch 2.11.0+cu128.
+# Cài bản PyTorch CUDA 12.8 từ kho gói chính thức của PyTorch.
 --extra-index-url https://download.pytorch.org/whl/cu128
 
 accelerate==1.10.1
@@ -7,14 +7,12 @@ bitsandbytes==0.48.1
 faiss-cpu==1.12.0
 huggingface-hub==0.35.3
 ipykernel==6.30.1
-kagglehub==0.3.13
-matplotlib==3.10.6
+ipython>=8.12,<10
+nbconvert>=7.16,<8
 numpy==2.3.3
 pandas==2.3.3
 pyarrow==22.0.0
-scikit-learn==1.7.2
 scipy==1.16.2
-seaborn==0.13.2
 sentence-transformers==5.1.2
 torch==2.11.0+cu128
 transformers==4.57.1
