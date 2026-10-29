@@ -73,7 +73,7 @@ Run the steps from the repository root in order:
 3. Generate course profiles: `python llm/course_profile.py` with the desired shard options.
 4. Encode raw descriptions and generated profiles with SBERT: `python llm/course_profile.py --encode_raw_only` for raw text; profile merging also writes the profile embeddings.
 5. Train the LightGCN backbone: `src/models/cold_scenario/lightgcn_backbone_cold.ipynb` (and the warm notebook for the Section 4.2 check).
-6. Run the four main cold-start models: Content-KNN, DropoutNet, ALDI, and SemProj using the notebooks in `src/models/cold_scenario/`, `src/models/coldrec-adapter.ipynb`, and `src/models/semproj_experiments.ipynb`.
+6. Run the four main cold-start models: Content-KNN, DropoutNet, ALDI, and SemProj. The entry notebook runs their source notebooks and scripts; it does not run the legacy ColdRec USIM/CGRC comparison.
 7. Rebuild the statistical comparisons: `results/final-stats.ipynb`.
 
 The course-profile CLI defaults to the local course table and prompt. For example:
@@ -90,8 +90,8 @@ The notebook is a standalone file in the repository; the README provides instruc
 
 1. **Prepare the environment.** Enable Internet access so the notebook can fetch the source code, Git LFS data, and Python packages. Ensure that the machine has enough disk space and memory for the data and experiments. By default, the notebook uses the saved profiles and embeddings, so a GPU is not needed to regenerate them. Regenerating Qwen 7B profiles requires a CUDA-compatible NVIDIA GPU with sufficient memory.
 2. **Select the source revision.** In the first configuration cell, set `REPO_REF` to the commit SHA you want to reproduce (for example, replace the default `draft` value with the SHA of the published version). You can also configure it with the `REPRO_REPO_REF` environment variable. The notebook records the resolved commit in `environment_manifest.json`.
-3. **Choose the run mode.** `RUN_EXPERIMENTS` is enabled by default and runs all checks and experiments in order. `REGENERATE_LLM_PROFILES` defaults to `0`, so the notebook uses the saved profiles and embeddings without regenerating them. To regenerate profiles, set this environment variable to `1`, `true`, or `yes` before starting the kernel; this requires a compatible NVIDIA GPU. You can change `RUN_EXPERIMENTS` in the first configuration cell or set its environment variable before starting the kernel.
-4. **Run all cells in order.** Open the notebook in Kaggle/Colab or Jupyter/VS Code and run every cell from top to bottom. The notebook detects the environment, finds an existing repository or clones it, installs/checks dependencies, downloads Git LFS data, fixes random seeds, checks the input files, and runs the pipeline. On a local machine, if the notebook is outside the repository directory, set `REPRO_REPO_PATH` to the checked-out repository directory.
+3. **Choose the run mode.** RUN_EXPERIMENTS defaults to 1 and runs the checks and main paper experiments, including ALDI from the repository code. It does not run the legacy ColdRec comparison, CGRC, or USIM tuning. RUN_USIM_RAW_SCREEN defaults to 0; set it to 1 only to repeat the single raw USIM screening run. REGENERATE_LLM_PROFILES defaults to 0 and uses the saved profiles and embeddings. Profile regeneration requires a compatible NVIDIA GPU. Set these environment variables before starting the kernel or change them in the first configuration cell.
+4. **Run all cells in order.** The notebook detects the environment, finds an existing repository or clones it, checks dependencies, downloads Git LFS data, fixes random seeds, checks the input files, and runs the main pipeline. Kaggle and Colab can install Git LFS automatically; on other systems, install Git LFS first or set REPRO_REPO_PATH to a complete local checkout. If the notebook is outside the repository directory, set REPRO_REPO_PATH to that checkout.
 5. **Review the results.** Each run saves an environment manifest and executed notebooks under `results/reproduction_runs/<run_id>/`. The runtime depends on the hardware; a full pipeline run may take several hours.
 
 The notebook makes the workflow easier to reproduce across platforms, but successful execution cannot be guaranteed on every machine. Results depend on network access, GitHub/Git LFS permissions, compatible package versions, available memory, and hardware. For comparable results, use the same commit SHA, data, and experiment settings; the manifest records environment versions to help identify differences.
@@ -108,9 +108,9 @@ The notebook makes the workflow easier to reproduce across platforms, but succes
 | Table 2: random and ID LightGCN | `src/eval/evaluate_test_random.ipynb`, `src/models/cold_scenario/lightgcn_id_cold.ipynb` | Notebook output; `results/random_ndcg_analytic.txt` | Saved empirical random means: 0.015705 on 502 cold candidates and 0.001983 over the full catalog. Analytic expectations: 0.01587648 and 0.00211462. ID LightGCN reference: 0.0165. |
 | Content-KNN | `src/models/cold_scenario/content-knn-v2.ipynb` | `scores/Content-KNN/` | Fused/raw mean NDCG@20 difference about +0.0001; no significant RQ1 difference |
 | DropoutNet | `src/models/cold_scenario/dropoutnet-v2.ipynb`, `src/models/cold_scenario/dropoutnet-v2-p-rq3.ipynb`, `src/models/cold_scenario/dropoutnet-llm-3d.ipynb` | `scores/DropoutNet/` | RQ1 fused/raw Δ=+0.0103; RQ2 new-course Δ=+0.0147; RQ3 fused-profile 5D−3D Δ=+0.0044 |
-| ALDI | `src/models/coldrec-adapter.ipynb`, `src/models/run_aldi.py` | `scores/ALDI/` | RQ1 fused/raw Δ=−0.0018; not significant in the saved final comparison |
+| ALDI | src/models/coldrec_adapter.py, src/models/run_aldi.py | scores/ALDI/ | RQ1 fused/raw Δ=−0.0018; not significant in the saved final comparison |
 | SemProj | `src/models/semproj_experiments.ipynb`, `src/models/semproj.py` | `scores/SemProj/` | RQ1 fused/raw Δ=+0.0142; RQ2 new-course Δ=+0.0212; RQ3 fused-profile 5D−3D Δ=+0.0122 |
-| Section 6.5: USIM | `src/models/coldrec-adapter-usim-raw.ipynb` | Notebook output and `scores/USIM/` when rerun | Check backbone loading, identity mapping, and cold-validation score before running test evaluation |
+| USIM limitation screen (optional) | src/models/coldrec-adapter-usim-raw.ipynb | Executed notebook under results/reproduction_runs/<run_id>/ | Raw, one-seed screening only; current saved run fails the cold-test NDCG@20 gate (0.0053 vs. 0.0165), so it is not tuned or included in final tables |
 | Tables 2–4 and RQ verdicts | `results/final-stats.ipynb` | `results/final_stats.csv`, `results/verdicts.json` | Saved RQ1–RQ3 verdicts and paired statistical tests |
 | Supplementary RQ4: inference latency | `src/models/semproj_experiments.ipynb`, `src/models/cold_scenario/content-knn-v2.ipynb` | Notebook output; SemProj writes `results_semproj/prq4_latency_gpu.csv` when rerun | Content-KNN measured 0.0024 ms/user for raw and LLM profiles, and 0.0035 ms/user for fused profiles; saved environment does not identify the GPU model |
 | Sections 6.3/6.5: appendix checks | `src/eval/random_ndcg_analytic.py`, `src/eval/time_consistent_subset.py` | `results/random_ndcg_analytic.txt`, `results/time_consistent_subset.txt` | Analytic random expectations 0.01587648 (cold-only) and 0.00211462 (full catalog); time-consistent subset retains 1,402/5,531 test interactions (25.35%) |
@@ -118,9 +118,13 @@ The notebook makes the workflow easier to reproduce across platforms, but succes
 
 The saved final comparison reports an RQ2 improvement concentrated on new courses, and a positive RQ3 five-dimension effect for DropoutNet and SemProj. Absolute means and confidence intervals are in `results/final_stats_tables_with_notes.csv`; `results/final_stats.csv` contains the paired-test details.
 
+### USIM and CGRC scope
+
+CGRC is excluded from the reproduction workflow. The optional USIM check runs only the raw input with one seed. Its saved run passed the backbone/cold-setting log check and did not show the epoch-11 stagnation pattern, but its cold-test NDCG@20 was 0.0053, below the LightGCN ID reference of 0.0165. The third screening condition therefore failed; no hyperparameter tuning, fused/LLM runs, multi-seed results, or USIM scores are included in the paper tables. Present USIM as a limitation. Set RUN_USIM_RAW_SCREEN=1 only if you want to repeat that raw screening run.
+
 ### External implementations
 
-The notebooks pin the upstream repositories to the commits below:
+The optional USIM screen pins its upstream ColdRec repository to the commit below. The default entrypoint runs ALDI from repository code and skips the legacy ColdRec comparison, including CGRC:
 
 - [ColdRec](https://github.com/YuanchenBei/ColdRec), MIT-licensed upstream: `1108192665aca2cb94b3aeb5bfed29850874eb1c`.
 - [ALDI](https://github.com/zfnWong/ALDI): `87f9fe369427402bd989728c4d27b543b2d19cd4`. No license file was visible in the upstream repository listing reviewed; inspect upstream terms before redistributing its code.
