@@ -35,7 +35,15 @@ def encode_all_raw_course_texts_only(df, encoder_name, output_dir, batch_size=32
     course_ids = [str(row.get("course_id", row.get("id", f"course_{i}"))) for i, (_, row) in enumerate(df.iterrows())]
     raw_texts = [get_clean_raw_course_text(row) for _, row in df.iterrows()]
 
-    raw_token_lens = [len(ids) for ids in encoder.tokenizer(raw_texts, add_special_tokens=True)["input_ids"]]
+    # Keep the original token counts for the truncation metadata, but suppress
+    # the tokenizer's warning: SentenceTransformer.encode truncates to
+    # encoder.max_seq_length before model inference.
+    raw_token_lens = [
+        len(ids)
+        for ids in encoder.tokenizer(
+            raw_texts, add_special_tokens=True, verbose=False
+        )["input_ids"]
+    ]
     raw_truncated = int(sum(l > encoder.max_seq_length for l in raw_token_lens))
 
     t0 = time.perf_counter()
@@ -93,8 +101,20 @@ def encode_both_texts_with_sbert(results, encoder_name, output_dir, batch_size=3
     ]
     name_texts = [r.get("course_name", "unknown") for r in results]
 
-    raw_token_lens = [len(ids) for ids in encoder.tokenizer(raw_texts, add_special_tokens=True)["input_ids"]]
-    llm_token_lens = [len(ids) for ids in encoder.tokenizer(llm_texts, add_special_tokens=True)["input_ids"]]
+    # Preserve full lengths for the truncation counts without emitting the
+    # tokenizer warning for texts that SentenceTransformer will truncate.
+    raw_token_lens = [
+        len(ids)
+        for ids in encoder.tokenizer(
+            raw_texts, add_special_tokens=True, verbose=False
+        )["input_ids"]
+    ]
+    llm_token_lens = [
+        len(ids)
+        for ids in encoder.tokenizer(
+            llm_texts, add_special_tokens=True, verbose=False
+        )["input_ids"]
+    ]
 
     raw_truncated = int(sum(l > encoder.max_seq_length for l in raw_token_lens))
     llm_truncated = int(sum(l > encoder.max_seq_length for l in llm_token_lens))
