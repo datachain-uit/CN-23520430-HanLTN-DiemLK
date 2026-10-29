@@ -84,6 +84,18 @@ python llm/course_profile.py --data_path data/course_llm/course_data.parquet --p
 
 Profile generation requires access to the selected Hugging Face model and a compatible GPU. The saved profile, embedding, backbone, and score artifacts let readers inspect the reported results without rerunning training.
 
+### How to run `reproduce_paper.ipynb`
+
+The notebook is a standalone file in the repository; the README provides instructions and a link to it. Open [reproduce_paper.ipynb](reproduce_paper.ipynb), then run it in Kaggle, Google Colab, or Jupyter/VS Code on a local machine. When sharing the project, commit the notebook and the related source changes to the repository. Readers can open or download the notebook from this link.
+
+1. **Prepare the environment.** Enable Internet access so the notebook can fetch the source code, Git LFS data, and Python packages. Ensure that the machine has enough disk space and memory for the data and experiments. By default, the notebook uses the saved profiles and embeddings, so a GPU is not needed to regenerate them. Regenerating Qwen 7B profiles requires a CUDA-compatible NVIDIA GPU with sufficient memory.
+2. **Select the source revision.** In the first configuration cell, set `REPO_REF` to the commit SHA you want to reproduce (for example, replace the default `draft` value with the SHA of the published version). You can also configure it with the `REPRO_REPO_REF` environment variable. The notebook records the resolved commit in `environment_manifest.json`.
+3. **Choose the run mode.** `RUN_EXPERIMENTS` is enabled by default and runs all checks and experiments in order. `REGENERATE_LLM_PROFILES` is fixed to `False`, so the notebook always uses the saved profiles and embeddings without regenerating them. You can change `RUN_EXPERIMENTS` in the first configuration cell or set its environment variable before starting the kernel.
+4. **Run all cells in order.** Open the notebook in Kaggle/Colab or Jupyter/VS Code and run every cell from top to bottom. The notebook detects the environment, finds an existing repository or clones it, installs/checks dependencies, downloads Git LFS data, fixes random seeds, checks the input files, and runs the pipeline. On a local machine, if the notebook is outside the repository directory, set `REPRO_REPO_PATH` to the checked-out repository directory.
+5. **Review the results.** Each run saves an environment manifest and executed notebooks under `results/reproduction_runs/<run_id>/`. The runtime depends on the hardware; a full pipeline run may take several hours.
+
+The notebook makes the workflow easier to reproduce across platforms, but successful execution cannot be guaranteed on every machine. Results depend on network access, GitHub/Git LFS permissions, compatible package versions, available memory, and hardware. For comparable results, use the same commit SHA, data, and experiment settings; the manifest records environment versions to help identify differences.
+
 ## 7. Reproducing the paper
 
 | Paper section/table | Notebook or script | Output | Expected result / check |
