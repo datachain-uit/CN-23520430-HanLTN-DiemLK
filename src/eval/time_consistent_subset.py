@@ -1,4 +1,4 @@
-"""Summarize the cold-test subset whose items first appeared after the time cutoff."""
+"""Tóm tắt tập con cold-test có khóa xuất hiện lần đầu sau mốc thời gian."""
 
 from __future__ import annotations
 

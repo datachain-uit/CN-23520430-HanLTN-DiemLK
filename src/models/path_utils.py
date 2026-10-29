@@ -1,4 +1,4 @@
-"""Filesystem helpers for notebooks that run on Windows, macOS, and Linux."""
+"""Hàm hỗ trợ hệ thống tệp cho notebook chạy trên Windows, macOS và Linux."""
 
 from __future__ import annotations
 
@@ -8,7 +8,7 @@ from pathlib import Path
 
 
 def _remove_existing(path: Path) -> None:
-    """Remove a file, directory, or symlink without following symlinks."""
+    """Xóa tệp, thư mục hoặc liên kết tượng trưng mà không lần theo liên kết."""
     if not os.path.lexists(path):
         return
     if path.is_symlink() or path.is_file():
@@ -18,11 +18,11 @@ def _remove_existing(path: Path) -> None:
 
 
 def link_or_copy(source: str | Path, destination: str | Path) -> str:
-    """Replace destination with a symlink, falling back to a real copy.
+    """Thay đích đến bằng liên kết tượng trưng hoặc sao chép nếu không tạo được.
 
-    Windows commonly disables symlink creation for non-elevated users. The
-    fallback keeps notebook behavior portable, at the cost of extra disk space.
-    Returns ``"symlink"`` or ``"copy"`` so callers can report the choice.
+    Windows thường không cho người dùng thường tạo liên kết tượng trưng. Cách
+    dự phòng giúp notebook hoạt động trên nhiều hệ điều hành nhưng tốn thêm dung
+    lượng. Trả về ``"symlink"`` hoặc ``"copy"`` để bên gọi thông báo lựa chọn.
     """
     src = Path(source).expanduser().resolve()
     dst = Path(destination).expanduser().absolute()
@@ -36,7 +36,7 @@ def link_or_copy(source: str | Path, destination: str | Path) -> str:
         dst.symlink_to(src, target_is_directory=src.is_dir())
         return "symlink"
     except (OSError, NotImplementedError):
-        # A failed symlink call may leave a partial entry on some filesystems.
+        # Trên một số hệ thống tệp, thao tác tạo liên kết lỗi vẫn có thể để lại mục dở dang.
         _remove_existing(dst)
         if src.is_dir():
             shutil.copytree(src, dst)

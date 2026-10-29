@@ -1,4 +1,4 @@
-"""Compute the exact macro NDCG@20 expectation for a uniform random ranking."""
+"""Tính kỳ vọng NDCG@20 macro chính xác cho thứ hạng ngẫu nhiên đều."""
 
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ def main() -> None:
     parser.add_argument("--k", type=int, default=20)
     parser.add_argument(
         "--catalog-count", type=int, default=None,
-        help="Number of items in the full catalog; defaults to the saved item_index.json length.",
+        help="Số khóa trong toàn bộ danh mục; mặc định lấy độ dài item_index.json đã lưu.",
     )
     args = parser.parse_args()
 

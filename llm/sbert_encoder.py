@@ -35,9 +35,9 @@ def encode_all_raw_course_texts_only(df, encoder_name, output_dir, batch_size=32
     course_ids = [str(row.get("course_id", row.get("id", f"course_{i}"))) for i, (_, row) in enumerate(df.iterrows())]
     raw_texts = [get_clean_raw_course_text(row) for _, row in df.iterrows()]
 
-    # Keep the original token counts for the truncation metadata, but suppress
-    # the tokenizer's warning: SentenceTransformer.encode truncates to
-    # encoder.max_seq_length before model inference.
+    # Giữ số token ban đầu để ghi nhận thông tin cắt ngắn, đồng thời tắt cảnh báo
+    # của bộ phân tích từ: SentenceTransformer.encode cắt văn bản theo
+    # encoder.max_seq_length trước khi suy luận.
     raw_token_lens = [
         len(ids)
         for ids in encoder.tokenizer(
@@ -101,8 +101,8 @@ def encode_both_texts_with_sbert(results, encoder_name, output_dir, batch_size=3
     ]
     name_texts = [r.get("course_name", "unknown") for r in results]
 
-    # Preserve full lengths for the truncation counts without emitting the
-    # tokenizer warning for texts that SentenceTransformer will truncate.
+    # Giữ độ dài đầy đủ để thống kê phần bị cắt mà không phát cảnh báo cho những
+    # văn bản SentenceTransformer sẽ tự cắt ngắn.
     raw_token_lens = [
         len(ids)
         for ids in encoder.tokenizer(

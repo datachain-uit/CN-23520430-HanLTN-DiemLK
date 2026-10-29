@@ -36,7 +36,7 @@ class ALDI(nn.Module):
             nn.Linear(h, d_emb),
         )
         for m in self.modules():
-            if isinstance(m, nn.Linear):  # truncated_normal(stddev=0.01)
+            if isinstance(m, nn.Linear):  # Khởi tạo chuẩn bị cắt với độ lệch chuẩn 0,01.
                 nn.init.trunc_normal_(m.weight, std=0.01, a=-0.02, b=0.02)
                 nn.init.zeros_(m.bias)
 

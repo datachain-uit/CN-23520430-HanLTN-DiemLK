@@ -34,7 +34,7 @@ OUTPUT_DIR = str(DATA_DIR / "ColdRec_Data")
 
 
 def find_file_in_repository(filename, default_path=None):
-    """Find a named input file under the local repository checkout."""
+    """Tìm một tệp đầu vào theo tên trong bản sao repository cục bộ."""
     if default_path and os.path.exists(default_path):
         return default_path
     for base_dir in (str(DATA_DIR), "."):
@@ -44,7 +44,7 @@ def find_file_in_repository(filename, default_path=None):
             if filename in files:
                 return os.path.join(root, filename)
     raise FileNotFoundError(
-        f"Could not find '{filename}' under DATA_DIR={DATA_DIR}."
+        f"Không tìm thấy '{filename}' bên dưới DATA_DIR={DATA_DIR}."
     )
 
 
@@ -54,7 +54,7 @@ DUP_GROUPS_PARQUET = find_file_in_repository(
     default_path=str(DATA_DIR / "data/course_llm/course_dup_groups.parquet"),
 )
 
-# Import the repository evaluator.
+# Nạp bộ đánh giá của repository.
 sys.path.insert(0, str(DATA_DIR / "src/eval"))
 try:
     from evaluator import evaluate, topk_random_ties
@@ -251,9 +251,9 @@ class ColdRecDataAdapter:
         và mã chính thức zfnWong/ALDI yêu cầu, giữ nguyên chỉ số 0..98219 và
         0..3768.
         """
-        # OUTPUT_DIR already points at <repo>/ColdRec_Data. Avoid creating the
-        # accidental <repo>/ColdRec_Data/ColdRec_Data/<dataset> nesting that
-        # prevented downstream ColdRec notebooks from finding cold_item/.
+        # OUTPUT_DIR đã trỏ tới <repo>/ColdRec_Data. Tránh tạo thư mục lồng
+        # <repo>/ColdRec_Data/ColdRec_Data/<dataset> khiến notebook ColdRec
+        # phía sau không tìm thấy cold_item/.
         ds_dir = os.path.join(self.output_dir, dataset_name)
         cold_item_dir = os.path.join(ds_dir, "cold_item")
         os.makedirs(ds_dir, exist_ok=True)
