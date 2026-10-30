@@ -19,7 +19,7 @@ def main() -> None:
     parser.add_argument("--output-dir", type=Path, default=None)
     parser.add_argument("--fraction", type=float, default=0.20)
     parser.add_argument("--validation-fraction", type=float, default=1 / 3)
-    parser.add_argument("--seed", type=int, default=2026)
+    parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--overwrite", action="store_true")
     args = parser.parse_args()
 

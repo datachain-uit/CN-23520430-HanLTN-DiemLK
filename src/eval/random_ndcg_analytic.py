@@ -60,6 +60,17 @@ def main() -> None:
     }
     targets = {user: items for user, items in targets.items() if items}
     value_cold = expected_ndcg(targets, len(candidates), args.k)
+    with (split_dir / "cold_items_val.json").open(encoding="utf-8") as f:
+        candidates_val = _ids(json.load(f))
+    val = pd.read_parquet(split_dir / "val_cold.parquet")
+    val["user_id"] = val["user_id"].astype(str)
+    val["course_id"] = val["course_id"].astype(str)
+    targets_val = {
+        str(user): set(group["course_id"]) & candidates_val
+        for user, group in val.groupby("user_id", sort=True)
+    }
+    targets_val = {user: items for user, items in targets_val.items() if items}
+    value_val = expected_ndcg(targets_val, len(candidates_val), args.k)
     catalog_count = args.catalog_count
     if catalog_count is None:
         index_path = data_dir / "data/embeddings/01_lightgcn_backbone_cold/item_index.json"
@@ -76,6 +87,8 @@ def main() -> None:
         f"Relevant items per user: mean={relevant_counts.mean():.6f}, "
         f"median={np.median(relevant_counts):.0f}, max={relevant_counts.max()}\n"
         f"Expected macro NDCG@{args.k} (cold-only): {value_cold:.8f}\n"
+        f"Expected macro NDCG@{args.k} (cold-val, {len(candidates_val)} candidates, "
+        f"{len(targets_val)} users): {value_val:.8f}\n"
         + (f"Expected macro NDCG@{args.k} (full catalog): {value_catalog:.8f}\n" if value_catalog is not None else "")
         + "Formula: for each rank r, P(relevant at r)=R/N; expected DCG is "
         + "normalized by that user's ideal DCG, then averaged over users.\n"

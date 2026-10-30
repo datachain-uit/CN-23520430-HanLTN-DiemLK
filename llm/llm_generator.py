@@ -28,10 +28,10 @@ INFERRED_HINT = (
 
 
 # Lấy commit SHA (model_revision) phục vụ tái lập thực nghiệm
-def get_model_revision(model_name, model=None):
+def get_model_revision(model_name, model=None, revision=None):
     try:
         from huggingface_hub import model_info
-        info = model_info(model_name)
+        info = model_info(model_name, revision=revision)
         if getattr(info, "sha", None):
             return info.sha
     except Exception:
@@ -45,6 +45,9 @@ def get_model_revision(model_name, model=None):
         m = re.search(r"snapshots/([0-9a-f]{40})", str(name_or_path))
         if m:
             return m.group(1)
+
+    if revision and re.fullmatch(r"[0-9a-f]{40}", revision):
+        return revision
 
     try:
         cache_root = os.environ.get(

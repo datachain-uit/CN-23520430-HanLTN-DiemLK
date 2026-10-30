@@ -1,6 +1,6 @@
 # Large Language Model-Based Pedagogical Profile Generation for Cold-Start Online Course Recommendation
 
-This repository contains the data processing, course-profile generation, recommendation experiments, and saved per-user scores for the paper. The reported method named **MVP** in the manuscript is implemented here as **SemProj**.
+This repository contains the data processing, course-profile generation, recommendation experiments, and saved per-user scores for the paper. The method evaluated in the paper is implemented here as **SemProj**.
 
 The experiments ask whether pedagogical profiles improve cold-start recommendation (RQ1), whether gains vary between new and near-duplicate courses (RQ2), whether the five profile fields contribute to performance (RQ3), and what profile-generation cost and inference latency they add (RQ4).
 
@@ -14,7 +14,7 @@ The experiments ask whether pedagogical profiles improve cold-start recommendati
 | `src/models/` | Cold-start and warm-scenario model notebooks and Python modules |
 | `src/eval/` | Evaluation utilities, cold-item checks, and supplementary analyses |
 | `scores/` | Per-user NDCG@20 arrays used for the published statistical comparisons |
-| `results/` | Statistical tables, verdicts, supplementary outputs, and the final-statistics notebook |
+| `results/` | Statistical tables, verdicts, supplementary outputs, reproduction runs, and archived latency evidence |
 | `archive/` | Few-shot-user data and exploratory notebooks not used in the paper |
 
 All notebooks locate the repository root automatically. When running code from another working directory, set `DATA_DIR` to the repository root:
@@ -39,9 +39,9 @@ git lfs install
 git lfs pull
 ```
 
-The recorded environment is Python 3.13.15 and PyTorch 2.11.0+cu128. The original GPU model was not recorded. CUDA is required for profile generation and GPU latency measurements; data validation and statistical analysis can run on CPU. The pinned PyTorch build targets CUDA 12.8.
+The recorded environment is Python 3.13.15 and PyTorch 2.11.0+cu128. The experiment notes record an NVIDIA T4 for profile generation; the GPU model used for recommender-model training and latency measurement was not recorded. The profile-generation benchmark logs record Qwen/Qwen2.5-7B-Instruct revision `a09a35458c702b33eeacc393d103063234e8bc28`, with transformers 5.20.1, bitsandbytes 0.50.2, and sentence-transformers 6.1.0. `requirements.txt` records the environment used for the 2026-10-29 rerun, which differs from the profile-generation benchmark environment. CUDA is required for profile generation and GPU latency measurements; data validation and statistical analysis can run on CPU. The pinned PyTorch build targets CUDA 12.8.
 
-The split preparation samples 100,000 learners with seed 2026 and does not apply a k-core filter. The committed cold-item lists select the latest 20% of courses by first recorded enrollment time: 753 items total, with 251 for validation and 502 for test. `check_cold_items.py` verifies the saved lists against that selection rule.
+The split preparation samples 100,000 learners with seed 2026 and does not apply a k-core filter. The committed cold-item lists select the latest 20% of courses by first recorded enrollment time: 753 items total, with 251 for validation and 502 for test. The validation/test assignment matches the sets produced by applying NumPy `default_rng` with seed 42 to the chronological candidate order; the JSON item order differs. `check_cold_items.py` verifies the saved lists against the selection rule, and `check_cold_split_seed.py` verifies the assignment.
 
 ## Reproduction
 
@@ -53,7 +53,7 @@ Check that the saved cold-item lists agree with the latest-course selection rule
 
 ```bash
 python src/eval/check_cold_items.py --strict
-python llm/course_profile.py --num_courses 1 --max_new_tokens 300 --output_dir results/quick_demo
+python llm/course_profile.py --num_courses 1 --max_new_tokens 300 --model_revision a09a35458c702b33eeacc393d103063234e8bc28 --output_dir results/quick_demo
 ```
 
 The inference command downloads Qwen2.5-7B-Instruct and the Sentence-BERT encoder on first use. It requires access to the model repository and a compatible NVIDIA GPU. Demo outputs are written to `results/quick_demo/`.
@@ -65,12 +65,14 @@ The repository contains LightGCN embeddings and all per-user score arrays used f
 ```bash
 python -c "from pathlib import Path; Path('results/reproduction_runs').mkdir(parents=True, exist_ok=True)"
 python src/eval/check_cold_items.py --strict
+python src/eval/check_cold_split_seed.py
 python src/eval/random_ndcg_analytic.py
 python src/eval/time_consistent_subset.py
+python src/eval/time_agnostic_history.py
 python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --output final-stats-executed.ipynb --output-dir results/reproduction_runs results/final-stats.ipynb
 ```
 
-The executed notebook is saved under `results/reproduction_runs/`. It recreates `results/final_stats.csv`, `results/final_stats_tables_with_notes.csv`, and `results/verdicts.json` from the checked-in score arrays.
+The executed notebook is saved under `results/reproduction_runs/`. It recreates `results/final_stats.csv`, `results/final_stats_tables_with_notes.csv`, and `results/verdicts.json` from the checked-in score arrays. The final cell of `reproduce_paper.ipynb` compares the regenerated `final_stats.csv` with the committed version and raises an assertion if they differ.
 
 | Paper result | Notebook or script | Main output | Expected check |
 |---|---|---|---|
@@ -79,23 +81,24 @@ The executed notebook is saved under `results/reproduction_runs/`. It recreates 
 | Masked-prerequisite evaluation | `llm/course_profile.py` (`--masked_prereq_eval` option) | `data/course_llm/3_quality_evaluation/masked_prereq_200_eval_report.json` | 200-course report |
 | Leakage sanity check | `src/models/lightgcn_leakage.ipynb` | Notebook output | Warm/cold split assertions complete without leakage flags |
 | LightGCN backbone | `src/models/cold_scenario/lightgcn_backbone_cold.ipynb` | `data/embeddings/01_lightgcn_backbone_cold/g_u.npy`, `g_i.npy` | MD5 prefixes `7a170558` and `d17ad9df` |
-| Random and ID baselines | `src/eval/evaluate_test_random.ipynb`, `src/models/cold_scenario/lightgcn_id_cold.ipynb` | Notebook output; `results/random_ndcg_analytic.txt` | Empirical random cold-test NDCG@20: 0.0157 ± 0.0010; LightGCN ID reference: 0.0165 |
+| Random and ID baselines | `src/eval/evaluate_test_random.ipynb`, `src/models/cold_scenario/lightgcn_id_cold.ipynb`, `src/eval/random_ndcg_analytic.py` | Notebook output; `results/random_ndcg_analytic.txt` | Empirical random cold-test NDCG@20: 0.0157 ± 0.0010; analytic cold-val NDCG@20: 0.03072973; LightGCN ID reference: 0.0165 |
 | Content-KNN | `src/models/cold_scenario/content-knn-v2.ipynb` | `scores/Content-KNN/` | Raw+Profile versus Raw ΔNDCG@20 ≈ +0.0001 |
 | DropoutNet | `src/models/cold_scenario/dropoutnet-v2.ipynb`, `dropoutnet-v2-p-rq3.ipynb`, `dropoutnet-llm-3d.ipynb` | `scores/DropoutNet/` | RQ1 Δ=+0.0103; new-course RQ2 Δ=+0.0147; five-field RQ3 Δ=+0.0044 |
 | ALDI | `src/models/run_aldi.py` and `src/models/coldrec-adapter.ipynb` | `scores/ALDI/` | RQ1 Δ=−0.0018; not significant in the saved comparison |
-| MVP (SemProj in this repository) | `src/models/semproj_experiments.ipynb` | `scores/SemProj/` | RQ1 Δ=+0.0142; new-course RQ2 Δ=+0.0212; five-field RQ3 Δ=+0.0122 |
-| RQ4: profile-generation cost and latency | `llm/course_profile.py`, `src/models/semproj_experiments.ipynb`, `src/models/cold_scenario/content-knn-v2.ipynb` | Notebook output; `results_semproj/` | 12.13 GPU-hours; 11.58 s/course; peak VRAM about 5.5 GB; Content-KNN latency 1.49×/2.22× |
+| SemProj | `src/models/semproj_experiments.ipynb` | `scores/SemProj/` | RQ1 Δ=+0.0142; new-course RQ2 Δ=+0.0212; five-field RQ3 Δ=+0.0122 |
+| RQ4: profile-generation cost and latency | `llm/course_profile.py`, `src/models/semproj_experiments.ipynb`, `src/models/cold_scenario/content-knn-v2.ipynb`, saved 2026-10-24 latency notebook | Notebook output; `results/legacy/` | 12.13 GPU-hours; 11.58 s/course; peak VRAM about 5.5 GB; median of 30 interleaved rounds: SemProj 0.99×–1.01×, Content-KNN 1.49×/2.22× LightGCN |
 | Tables 2–4 and RQ verdicts | `results/final-stats.ipynb` | `results/final_stats.csv`, `results/verdicts.json` | RQ1 architecture-dependent; RQ2 concentrated on genuinely new courses; RQ3 contributes |
-| Supplementary analyses | `src/eval/random_ndcg_analytic.py`, `src/eval/time_consistent_subset.py` | `results/random_ndcg_analytic.txt`, `results/time_consistent_subset.txt` | Random-ranking expectations: 0.01587648 (cold-only) and 0.00211462 (full catalog); time-consistent subset: 1,402/5,531 interactions |
+| Supplementary analyses | `src/eval/random_ndcg_analytic.py`, `src/eval/time_consistent_subset.py`, `src/eval/time_agnostic_history.py` | `results/random_ndcg_analytic.txt`, `results/time_consistent_subset.txt`, `results/time_agnostic_history.txt` | Random-ranking expectations: 0.01587648 (cold-only), 0.03072973 (cold-val), and 0.00211462 (full catalog); time-agnostic history: 76.7% of cold-test interactions; late-launch cold-test subset: 1,402/5,531 interactions |
 
 The cold-item lists committed under `data/splits/cold_scenario/` are the canonical lists for reproducing the paper. To generate a new deterministic 80/20 cold-item selection and save it separately, run:
 
 ```bash
-python src/eval/generate_cold_items.py --seed 2026
+python src/eval/generate_cold_items.py --seed 42
 python src/eval/check_cold_items.py --lists-dir data/splits/cold_scenario/generated_cold_items --strict
 ```
 
 The generated validation/test assignment is for a new run and does not replace the committed paper split. Keep the committed JSON files when reproducing the published scores.
+`check_cold_split_seed.py` compares the committed validation/test assignment against the shuffle procedures and seeds 42 and 2026. It reproduces the validation and test sets with NumPy `default_rng` and seed 42; the saved JSON order differs from the generated order.
 
 ### 3. Train from scratch
 
@@ -110,9 +113,9 @@ python -m nbconvert --to notebook --execute --ExecutePreprocessor.timeout=-1 --o
 Generate course profiles in two shards, then merge them and encode the course text:
 
 ```bash
-python llm/course_profile.py --num_courses 0 --shard 0 --num_shards 2 --output_dir data/course_llm/2_profiles_full_and_shards
-python llm/course_profile.py --num_courses 0 --shard 1 --num_shards 2 --output_dir data/course_llm/2_profiles_full_and_shards
-python llm/course_profile.py --merge_shards --num_shards 2 --output_dir data/course_llm/2_profiles_full_and_shards
+python llm/course_profile.py --num_courses 0 --shard 0 --num_shards 2 --model_revision a09a35458c702b33eeacc393d103063234e8bc28 --output_dir data/course_llm/2_profiles_full_and_shards
+python llm/course_profile.py --num_courses 0 --shard 1 --num_shards 2 --model_revision a09a35458c702b33eeacc393d103063234e8bc28 --output_dir data/course_llm/2_profiles_full_and_shards
+python llm/course_profile.py --merge_shards --num_shards 2 --model_revision a09a35458c702b33eeacc393d103063234e8bc28 --output_dir data/course_llm/2_profiles_full_and_shards
 ```
 
 Train the backbone and recommendation models. These runs can take hours and require a CUDA-capable GPU for the neural models.

@@ -1,0 +1,4 @@
+Time-agnostic learner histories (cold-item split)
+Cold-test interactions with a later training interaction of the same learner: 4244/5531 (76.7%)
+Learners whose whole train+val history precedes their first cold-test enrollment: 801/3340 (24.0%)
+Median training interactions: 2 (these learners) vs 47 (other learners)

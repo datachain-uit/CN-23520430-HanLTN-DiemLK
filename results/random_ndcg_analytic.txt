@@ -4,5 +4,6 @@ Full-catalog candidate count: 3769
 Users with at least one relevant test item: 3340
 Relevant items per user: mean=1.655988, median=1, max=60
 Expected macro NDCG@20 (cold-only): 0.01587648
+Expected macro NDCG@20 (cold-val, 251 candidates, 2092 users): 0.03072973
 Expected macro NDCG@20 (full catalog): 0.00211462
 Formula: for each rank r, P(relevant at r)=R/N; expected DCG is normalized by that user's ideal DCG, then averaged over users.

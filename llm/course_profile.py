@@ -52,7 +52,7 @@ def merge_shards_and_encode(df, args):
         f"Số lượng course_id không khớp: {len(records_by_id)} vs {len(expected_ids)}"
     )
 
-    model_rev = get_model_revision(args.model_name)
+    model_rev = get_model_revision(args.model_name, revision=args.model_revision)
     merged_results = []
     rechecked_mention_count = 0
     scrubbed_in_merge_count = 0
@@ -112,6 +112,11 @@ def main():
     parser.add_argument("--data_path", type=str, default=str(repo_root / "data/course_llm/course_data.parquet"))
     parser.add_argument("--prompt_path", type=str, default=str(repo_root / "src/prompts/prompt_template.txt"))
     parser.add_argument("--model_name", type=str, default="Qwen/Qwen2.5-7B-Instruct")
+    parser.add_argument(
+        "--model_revision", type=str,
+        default="a09a35458c702b33eeacc393d103063234e8bc28",
+        help="Commit revision của mô hình Qwen dùng để sinh hồ sơ.",
+    )
     parser.add_argument("--num_courses", type=int, default=50)
     parser.add_argument("--max_new_tokens", type=int, default=300)
     parser.add_argument("--max_retries", type=int, default=2)
@@ -221,17 +226,21 @@ def main():
         bnb_4bit_use_double_quant=True,
         bnb_4bit_compute_dtype=torch.float16
     )
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name, trust_remote_code=True)
+    tokenizer = AutoTokenizer.from_pretrained(
+        args.model_name, trust_remote_code=True, revision=args.model_revision
+    )
     if tokenizer.pad_token is None:
         tokenizer.pad_token = tokenizer.eos_token
 
     device_map_cfg = {"": 0} if (args.single_gpu and torch.cuda.is_available()) else "auto"
     model = AutoModelForCausalLM.from_pretrained(
         args.model_name, quantization_config=bnb_config,
-        device_map=device_map_cfg, trust_remote_code=True
+        device_map=device_map_cfg, trust_remote_code=True, revision=args.model_revision
     )
     model.eval()
-    model_revision = get_model_revision(args.model_name, model=model)
+    model_revision = get_model_revision(
+        args.model_name, model=model, revision=args.model_revision
+    )
 
     if torch.cuda.is_available():
         for gi in range(torch.cuda.device_count()):
